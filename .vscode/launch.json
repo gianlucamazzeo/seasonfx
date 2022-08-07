@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "pwa-chrome",
+            "name": "http://localhost:8000/api/oanda/instruments/EUR_USD/2022-06-01/2022-06-30/D",
+            "request": "launch",
+            "url": "http://localhost:8000/api/oanda/instruments/EUR_USD/2022-06-01/2022-06-30/D"
+        }
+    ]
+}
