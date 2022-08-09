@@ -17,6 +17,7 @@ import AdminRoute from "./components/routes/AdminRoute";
 import Password from "./pages/user/Password";
 import Wishlist from "./pages/user/Wishlist";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import CurrencyCreate from "./pages/admin/currency/CurrencyCreate";
 
 import { auth } from "./firebase";
 import { useDispatch } from "react-redux";
@@ -64,6 +65,8 @@ const App = () => {
         <UserRoute exact path="/user/password" component={Password} />
         <UserRoute exact path="/user/wishlist" component={Wishlist} />
         <AdminRoute exact path="/admin/dashboard" component={AdminDashboard} />
+        <AdminRoute exact path="/admin/currency" component={CurrencyCreate} />
+
       </Switch>
     </>
   );

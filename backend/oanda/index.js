@@ -41,3 +41,8 @@ exports.getDataByOanda = async (params) => {
     return "erre" + error;
   }
 };
+
+
+exports.updateDataByOanda = async(arg) => {
+    
+}
