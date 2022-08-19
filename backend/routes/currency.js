@@ -20,6 +20,8 @@ router.get('/oanda/accounts',  authCheck, adminCheck,  asyncHandler(async (req, 
 
 router.get('/oanda/instruments/:pair/:fromData/:toData/:granularity',  authCheck, adminCheck,  asyncHandler(async (req, res) => { 
     try { 
+
+
         // EUR_USD/candles?price=A&from=2022-06-01&to=2022-06-30&granularity=D  
         const response = await getDataByOanda({endpoint: 'instruments', pair: req.params.pair, fromData: req.params.fromData, toData: req.params.toData, granularity: req.params.granularity, price: 'A' });
         console.log(response)
@@ -70,6 +72,7 @@ const {
   // routes
   router.post("/currency", authCheck, adminCheck, create);
   router.get("/currencies", list);
+ // router.get("/updateDataCurrency/:slug", updateDataCurrency);
   router.get("/currency/:slug", read);
   router.put("/currency/:slug", authCheck, adminCheck, update);
   router.delete("/currency/:slug", authCheck, adminCheck, remove);

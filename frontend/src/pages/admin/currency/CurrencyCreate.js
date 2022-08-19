@@ -8,7 +8,7 @@ import {
   removeCurrency,
 } from "../../../functions/currency";
 import { Link } from "react-router-dom";
-import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 
 
 const CurrencyCreate = () => {
@@ -34,6 +34,7 @@ const CurrencyCreate = () => {
         setLoading(false);
         setName("");
         toast.success(`"${res.data.name}" is created`);
+        loadCurrencies()
       })
       .catch((err) => {
         console.log(err);
@@ -107,11 +108,17 @@ const CurrencyCreate = () => {
               >
                 <DeleteOutlined className="text-danger" />
               </span>
-              <Link to={`/admin/category/${c.slug}`}>
+              <Link to={`/admin/currency/${c.slug}`}>
                 <span className="btn btn-sm float-right">
                   <EditOutlined className="text-warning" />
                 </span>
               </Link>
+              <Link to={`/admin/currency/data/${c.slug}`}>
+                <span className="btn btn-sm float-right">
+                  <UploadOutlined  className="text-warning" />
+                </span>
+              </Link>
+             
             </div>
           ))}
         </div>

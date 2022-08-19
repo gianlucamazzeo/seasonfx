@@ -12,6 +12,8 @@ exports.create = async (req, res) => {
       res.status(400).send("Create category failed");
     }
   };
+
+  
   
   exports.list = async (req, res) =>
     res.json(await Currency.find({}).sort({ createdAt: -1 }).exec());
