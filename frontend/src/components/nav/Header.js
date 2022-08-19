@@ -46,18 +46,29 @@ const Header = () => {
             style: {float: 'left', display: 'block'}
         },
         {
-          label: user  ? user.email.split("@")[0] : 'Username',
+          label: user  &&  user.email.split("@")[0],
           key: 'username',
           icon: <SettingOutlined />,
           
-              children: [
-                {
+            children: [
+              user &&  {
                   label: 'Logout',
                   key: 'logout',
                   icon: <LogoutOutlined />,
                   onClick: logout
                 },
-              ],
+              
+              !user && {
+                label: (
+                  <Link to="/register">Register</Link>
+                ),
+              },
+              user && user.role === 'admin' && {
+                label: (
+                  <Link to="/admin/dashboard">Dashboard</Link>
+                ),
+              }
+            ],
             style: user ? {float: 'right', display: 'block'} : {float: 'left', display: 'block'}
         },
         {

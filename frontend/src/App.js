@@ -1,8 +1,7 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { Switch, Route } from "react-router-dom";
-import {  ToastContainer } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
@@ -17,20 +16,24 @@ import AdminRoute from "./components/routes/AdminRoute";
 import Password from "./pages/user/Password";
 import Wishlist from "./pages/user/Wishlist";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import CurrencyCreate from "./pages/admin/currency/CurrencyCreate";
+import CurrencyUpdate from "./pages/admin/currency/CurrencyUpdate";
+import CurrencyData from "./pages/admin/currency/CurrencyData";
+
+
 
 import { auth } from "./firebase";
 import { useDispatch } from "react-redux";
 import { currentUser } from "./functions/auth";
 
-
 const App = () => {
   const dispatch = useDispatch();
-    // to check firebase auth state
-    useEffect(() => {
-      const unsubscribe = auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          const idTokenResult = await user.getIdTokenResult();
-          currentUser(idTokenResult.token)
+  // to check firebase auth state
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        const idTokenResult = await user.getIdTokenResult();
+        currentUser(idTokenResult.token)
           .then((res) => {
             dispatch({
               type: "LOGGED_IN_USER",
@@ -44,11 +47,11 @@ const App = () => {
             });
           })
           .catch((err) => console.log(err));
-        }
-      });
-      // cleanup
-      return () => unsubscribe();
-    }, [dispatch]);
+      }
+    });
+    // cleanup
+    return () => unsubscribe();
+  }, [dispatch]);
 
   return (
     <>
@@ -64,6 +67,17 @@ const App = () => {
         <UserRoute exact path="/user/password" component={Password} />
         <UserRoute exact path="/user/wishlist" component={Wishlist} />
         <AdminRoute exact path="/admin/dashboard" component={AdminDashboard} />
+        <AdminRoute exact path="/admin/currency" component={CurrencyCreate} />
+        <AdminRoute
+          exact
+          path="/admin/currency/:slug"
+          component={CurrencyUpdate}
+        />
+        <AdminRoute
+        exact
+        path="/admin/currency/data/:slug"
+        component={CurrencyData}
+      />
       </Switch>
     </>
   );
