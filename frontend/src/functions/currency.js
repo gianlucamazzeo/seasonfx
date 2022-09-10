@@ -6,7 +6,7 @@ export const getCurrencies = async () =>
 
 export const getDataCurrency = async (slug) => 
 // http://localhost:8000/api/oanda/instruments/EUR_USD/2022-06-01/2022-06-30/D
-  await axios.get(`${process.env.REACT_APP_API}/getDataCurrency/${slug}`);
+  await axios.get(`${process.env.REACT_APP_API}/oanda/update`);
 
   
 
@@ -28,6 +28,16 @@ export const updateCurrency = async (slug, currency, authtoken) =>
   });
 
 
+  export const updateDataCurrency = async (slug, period, authtoken) =>
+  await axios.post(`${process.env.REACT_APP_API}/currencyData`, {
+    headers: {
+      authtoken,
+    },
+  });
+
+
+
+
 
 export const createCurrency = async (currency, authtoken) =>
   await axios.post(`${process.env.REACT_APP_API}/currency`, currency, {
@@ -35,3 +45,6 @@ export const createCurrency = async (currency, authtoken) =>
       authtoken,
     },
   });
+
+
+
