@@ -85,19 +85,38 @@ exports.create = async (req, res) => {
     };
 
     const filter = { _id: currencyPair._id };
+    const eleCur = await CurrencyDataSet.findOne(filter);
+    let msg;
 
-    const updateCandles = CurrencyDataSet.findOneAndUpdate(filter, newObjData, {
-      new: true,
-      upsert: true,
-    }).exec();
+    if (!eleCur) {
+      const updateCandles = await CurrencyDataSet.findOneAndUpdate(
+        filter,
+        newObjData,
+        {
+          new: true,
+          upsert: true,
+        }
+      ).exec();
 
-    res.status(200).send(response);
+      res.status(200).send(JSON.stringify(eleCur));
+    } else {
+      periodCandles.map((e) => {
+        CurrencyDataSet.updateOne(
+          { _id: currencyPair._id, "candles.time": { $ne: e.time } },
+          { $push: { candles: periodCandles } },
+          function (err, result) {
+            if (err) {
+              //  res.send(err);
+            } else {
+            }
+          }
+        );
+      });
 
-    //   req.body.slug = slugify(req.body.title);
-    //   const newProduct = await new Product(req.body).save();
-    //  res.json(response);
+      res.send(periodCandles);
+    }
   } catch (err) {
     console.log(err);
-    res.status(400).send("Create product failed");
+    res.status(400).send("Create product failed" + err);
   }
 };

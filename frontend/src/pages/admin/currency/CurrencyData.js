@@ -1,35 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { PoweroffOutlined } from "@ant-design/icons";
 import {
   Button,
-  Dropdown,
-  Menu,
   message,
   Space,
-  Tooltip,
   Select,
   DatePicker,
 } from "antd";
 import AdminNav from "../../../components/nav/AdminNav";
-import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
-import { getCurrencies } from "../../../functions/currency";
+import { toast } from "react-toastify";
+import { getCurrencies, updateDataCurrency } from "../../../functions/currency";
 
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
 
 const CurrencyData = ({ history, match }) => {
+  const { user } = useSelector((state) => ({ ...state }));
   const [loadings, setLoadings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currencies, setCurrencies] = useState([]);
-  const [selectedClient,setSelectedClient] = useState([]);
+  const [selectedPair,setSelectedPair] = useState([]);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
 
 
   const handleChange = (value) => {
-    setSelectedClient(value)
+    setSelectedPair(value)
    console.log(`selected ${value}`);
   };
 
@@ -51,28 +48,47 @@ const CurrencyData = ({ history, match }) => {
   // console.log(currencies);
 
   const handleSubmit = (e) => {
-
     e.preventDefault();
 
-    if(selectedClient.length > 0 && fromDate  && toDate){
+    if(selectedPair.length > 0 && fromDate  && toDate){
     setLoadings((prevLoadings) => {
       const newLoadings = [...prevLoadings];
       newLoadings[0] = true;
       return newLoadings;
     });
 
+    const ObjectDataPost = {
+      name: selectedPair,
+      fromData: fromDate,
+      toData : toDate,
+      granularity: "D"
+    }
 
      
-      setTimeout(() => {
+    updateDataCurrency(ObjectDataPost, user.token)
+      .then((res) => {
+        console.log(res);
         setLoadings(prevLoadings => {
           const newLoadings = [...prevLoadings];
           newLoadings[0] = false;
-          message.info("Data Update");
+          message.info(`Data Update:  `);
           return newLoadings;
         });
-      }, 6000);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoadings(prevLoadings => {
+          const newLoadings = [...prevLoadings];
+          newLoadings[0] = false;
+          return newLoadings;
+        });
+        if (err.response.status === 400) toast.error(err.response.data);
+      });
+   // updateDataCurrency
 
-      console.log(selectedClient, fromDate, toDate)
+
+   //   console.log(selectedPair, fromDate, toDate)
+
     }
     return console.log('error, data missing')
   //  
@@ -120,7 +136,7 @@ const CurrencyData = ({ history, match }) => {
                       placeholder="Search to Select"
                       optionFilterProp="children"
                       onChange={handleChange}
-                      value={selectedClient}
+                      value={selectedPair}
                     
                     >
                       {pairs()}

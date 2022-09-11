@@ -20,6 +20,11 @@ const AdminNav = () => (
           Password
         </Link>
       </li>
+      <li className="nav-item">
+        <Link to="/admin/update" className="nav-link">
+          Update data currency
+        </Link>
+      </li>
     </ul>
   </nav>
 );

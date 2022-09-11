@@ -75,7 +75,7 @@ const App = () => {
         />
         <AdminRoute
         exact
-        path="/admin/currency/data/:slug"
+        path="/admin/update"
         component={CurrencyData}
       />
       </Switch>

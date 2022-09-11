@@ -28,11 +28,12 @@ export const updateCurrency = async (slug, currency, authtoken) =>
   });
 
 
-  export const updateDataCurrency = async (slug, period, authtoken) =>
-  await axios.post(`${process.env.REACT_APP_API}/currencyData`, {
+  export const updateDataCurrency = async (pairPeriod, authtoken) =>
+  await axios.post(`${process.env.REACT_APP_API}/currencyData`, pairPeriod, {
     headers: {
       authtoken,
     },
+
   });
 
 
