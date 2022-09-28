@@ -17,10 +17,11 @@ const UserNav = () => (
       </li>
 
       <li className="nav-item">
-        <Link to="/user/wishlist" className="nav-link">
-          Wishlist
+        <Link to="/user/plot" className="nav-link">
+          Plot
         </Link>
       </li>
+
     </ul>
   </nav>
 );

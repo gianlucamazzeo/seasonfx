@@ -46,7 +46,6 @@ router.post('/oanda/update',  authCheck, adminCheck,  asyncHandler(async (req, r
 }));
 
 router.post("/oanda/currency/create", authCheck, adminCheck, asyncHandler(async (req, res) => { 
-
     try {
         const data = req.body;  
         //    const response = await updateDataByOanda(data);
@@ -56,9 +55,9 @@ router.post("/oanda/currency/create", authCheck, adminCheck, asyncHandler(async 
     } catch (error) {
         console.log(error.message)
     } 
+}));
 
 
-}))
 
 // controller
 const {
@@ -67,12 +66,12 @@ const {
     update,
     remove,
     list,
+    readLocal
   } = require("../controllers/currency");
   
   // routes
   router.post("/currency", authCheck, adminCheck, create);
   router.get("/currencies", list);
- // router.get("/updateDataCurrency/:slug", updateDataCurrency);
   router.get("/currency/:slug", read);
   router.put("/currency/:slug", authCheck, adminCheck, update);
   router.delete("/currency/:slug", authCheck, adminCheck, remove);

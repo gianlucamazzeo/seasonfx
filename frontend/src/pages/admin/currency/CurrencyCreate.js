@@ -64,9 +64,6 @@ const CurrencyCreate = () => {
   };
 
 
-
-
-
   const currencyForm = () => (
     <form onSubmit={handleSubmit}>
       <div className="form-group">
@@ -113,12 +110,6 @@ const CurrencyCreate = () => {
                   <EditOutlined className="text-warning" />
                 </span>
               </Link>
-              <Link to={`/admin/currency/data/${c.slug}`}>
-                <span className="btn btn-sm float-right">
-                  <UploadOutlined  className="text-warning" />
-                </span>
-              </Link>
-             
             </div>
           ))}
         </div>
