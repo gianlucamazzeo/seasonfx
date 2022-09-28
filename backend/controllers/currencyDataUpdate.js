@@ -3,6 +3,8 @@ const CurrencyDataSet = require("../models/currencyDataSet");
 const slugify = require("slugify");
 const { getDataByOanda } = require("../oanda");
 
+
+
 exports.create = async (req, res) => {
   try {
     //   EUR_USD/candles?price=A&from=2022-06-01&to=2022-06-30&granularity=D
@@ -120,3 +122,20 @@ exports.create = async (req, res) => {
     res.status(400).send("Create product failed" + err);
   }
 };
+
+exports.list = async (req, res) =>
+res.json(await Currency.find({}).sort({ createdAt: -1 }).exec());
+
+
+/*
+
+*/
+
+exports.all = async (req, res) => 
+res.json(await Currency.find({ id: "62fcf92818e12464410e7b18"})
+.populate(CurrencyDataSet)
+.exec());
+
+
+
+

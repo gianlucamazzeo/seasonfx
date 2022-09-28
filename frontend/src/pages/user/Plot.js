@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import UserNav from "../../components/nav/UserNav";
 import {
   Button,
   message,
@@ -6,16 +7,16 @@ import {
   Select,
   DatePicker,
 } from "antd";
-import AdminNav from "../../../components/nav/AdminNav";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getCurrencies, updateDataCurrency } from "../../../functions/currency";
+import { getCurrencies, getLocalDataCurrency } from "../../functions/currency";
 
 const { RangePicker } = DatePicker;
 
 const { Option } = Select;
 
-const CurrencyData = ({ history, match }) => {
+
+const Plot = ({ history, match }) => {
   const { user } = useSelector((state) => ({ ...state }));
   const [loadings, setLoadings] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,6 @@ const CurrencyData = ({ history, match }) => {
   const [selectedPair,setSelectedPair] = useState([]);
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
-
 
   const handleChange = (value) => {
     setSelectedPair(value)
@@ -36,6 +36,47 @@ const CurrencyData = ({ history, match }) => {
     console.log(date, dateString);
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if(selectedPair.length > 0 && fromDate  && toDate){
+
+      setLoadings((prevLoadings) => {
+        const newLoadings = [...prevLoadings];
+        newLoadings[0] = true;
+        return newLoadings;
+      });
+
+      const ObjectDataPost = {
+        id: selectedPair,
+        fromData: fromDate,
+        toData : toDate,
+        granularity: "D"
+      }
+
+      getLocalDataCurrency(ObjectDataPost,user.token)
+      .then((res) => {
+        console.log(res);
+
+        setLoadings(prevLoadings => {
+          const newLoadings = [...prevLoadings];
+          newLoadings[0] = false;
+          message.info(`Data get:  `);
+          return newLoadings;
+        });
+
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+        if (err.response.status === 400) toast.error(err.response.data);
+      });
+
+      
+
+    }
+
+
+  }
 
   useEffect(() => {
     try {
@@ -45,57 +86,12 @@ const CurrencyData = ({ history, match }) => {
     }
   }, []);
 
-  // console.log(currencies);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if(selectedPair.length > 0 && fromDate  && toDate){
-    setLoadings((prevLoadings) => {
-      const newLoadings = [...prevLoadings];
-      newLoadings[0] = true;
-      return newLoadings;
-    });
-
-    const ObjectDataPost = {
-      name: selectedPair,
-      fromData: fromDate,
-      toData : toDate,
-      granularity: "D"
-    }
-
-     
-    updateDataCurrency(ObjectDataPost, user.token)
-      .then((res) => {
-        console.log(res);
-        setLoadings(prevLoadings => {
-          const newLoadings = [...prevLoadings];
-          newLoadings[0] = false;
-          message.info(`Data Update:  `);
-          return newLoadings;
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoadings(prevLoadings => {
-          const newLoadings = [...prevLoadings];
-          newLoadings[0] = false;
-          return newLoadings;
-        });
-        if (err.response.status === 400) toast.error(err.response.data);
-      });
-   // updateDataCurrency
-    }
-    return console.log('error, data missing')
-
-  };
-
- 
   const pairs = () => {
     const menu = [];
+   // console.log(currencies);
     currencies.map((e, i) =>
       menu.push(
-        <Option key={i} value={e.name}>
+        <Option key={i} value={e._id}>
           {e.name}
         </Option>
       )
@@ -103,21 +99,19 @@ const CurrencyData = ({ history, match }) => {
     return menu;
   };
 
- // const menu = <Menu onClick={handleMenuClick} items={pairs()} value={selectedClient}  />;
-
  
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-2">
-          <AdminNav />
+         <UserNav />
         </div>
         <div className="col">
           {loading ? (
             <h4 className="text-danger">Loading..</h4>
           ) : (
             <>
-              <h4>Update currency data</h4>
+              <h4>Plot Pair Data</h4>
               <Space size={102}>
                 <form method="post">
                   <div className="form-group">
@@ -143,7 +137,7 @@ const CurrencyData = ({ history, match }) => {
                     loading={loadings[0]}
                     onClick={handleSubmit}
                     >
-                      Update Data
+                      Get data
                     </Button>
                   </div>
                 </form>
@@ -158,4 +152,4 @@ const CurrencyData = ({ history, match }) => {
   );
 };
 
-export default CurrencyData;
+export default Plot;

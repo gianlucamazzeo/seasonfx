@@ -14,7 +14,7 @@ import History from "./pages/user/History";
 import UserRoute from "./components/routes/UserRoute";
 import AdminRoute from "./components/routes/AdminRoute";
 import Password from "./pages/user/Password";
-import Wishlist from "./pages/user/Wishlist";
+import Plot from "./pages/user/Plot";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import CurrencyCreate from "./pages/admin/currency/CurrencyCreate";
 import CurrencyUpdate from "./pages/admin/currency/CurrencyUpdate";
@@ -65,7 +65,7 @@ const App = () => {
         <Route exact path="/forgot/password" component={ForgotPassword} />
         <UserRoute exact path="/user/history" component={History} />
         <UserRoute exact path="/user/password" component={Password} />
-        <UserRoute exact path="/user/wishlist" component={Wishlist} />
+        <UserRoute exact path="/user/plot" component={Plot} />
         <AdminRoute exact path="/admin/dashboard" component={AdminDashboard} />
         <AdminRoute exact path="/admin/currency" component={CurrencyCreate} />
         <AdminRoute
