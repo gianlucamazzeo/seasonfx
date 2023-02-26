@@ -24,10 +24,10 @@ const Plot = ({ history, match }) => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [january, setJanuary] = useState(0);
   const [december, setDecember] = useState(11);
-  const [dateIndex, setDataIndex] = useState([]);
+  const [dataIndex, setDataIndex] = useState(null);
 
 
-  const graph = useMemo(() =>  <Graph loading={loading} dataCandles={dataCandles} dateIndex={dateIndex} />, [dataCandles, loading, dateIndex]);
+  const graph = useMemo(() =>  <Graph loading={loading} dataCandles={dataCandles} dataIndex={dataIndex} />, [dataCandles, loading, dataIndex]);
 
   const handleChange = useCallback((value) => {
     setSelectedPair(value);
@@ -55,9 +55,10 @@ const Plot = ({ history, match }) => {
         granularity: "D",
       };
 
+      const dataIndex3 = [];
+
       getLocalDataCurrency(ObjectDataPost, user.token)
         .then((res) => {
-          console.log(ObjectDataPost);
          
           const monthPostFrom = ObjectDataPost.fromData.substring(5, 7);
           const monthPostTo = ObjectDataPost.toData.substring(5, 7);
@@ -68,36 +69,30 @@ const Plot = ({ history, match }) => {
           const firstDay = new Date(currentYear, enMonthPostFrom, 1);
           const lastDay = new Date(currentYear, enMonthPostTo, endMonthTo);
           const dateArray = getDateArray(firstDay, lastDay);
+          
 
           let newDateArrayIndex = dateArray.map((el) => {
             var year = el.getFullYear();
             var month = el.getMonth();
             var day = el.getDate();
-            let period3yearsAgoTimestamp = new Date(year - 3, month, day);
-            let period2yearsAgoTimestamp = new Date(year - 2, month, day);
-            let period1yearsAgoTimestamp = new Date(year - 1, month, day);
+            let period3yearsAgoTimestamp = new Date(year - 4, month, day);
+            let period2yearsAgoTimestamp = new Date(year - 3, month, day);
+            let period1yearsAgoTimestamp = new Date(year - 2, month, day);
             //  const filteredResult = jsObject.find((e) => e.b == 6);
-            let timestampDate = [
-              formatDate(period3yearsAgoTimestamp),
-              formatDate(period2yearsAgoTimestamp),
-              formatDate(period1yearsAgoTimestamp),
-            ]; //  ['Work', 9]
+            let timestampDate = 
+             { 'firstY': formatDate(period3yearsAgoTimestamp),
+              'secondY':formatDate(period2yearsAgoTimestamp),
+              'thirdY':formatDate(period1yearsAgoTimestamp)
+             }
+            ; //  ['Work', 9]
             //mapPeriodLastYear.push(timestampDate);
-            return [...timestampDate];
+           
+            return timestampDate;
           });
-          setDataIndex(newDateArrayIndex)           
-       
-          
-          let newObjectCandle = newDateArrayIndex.map((el) => {
-            let count = el.length;
 
-            for(let a=0;a<count;a++){
-              let filterCandles = res?.data?.media3.filter(
-                (elMedia) =>
-                  elMedia.time.substring(5, 10) === el[a].substring(5, 10)
-              );
-            }         
-          });
+          dataIndex3.push(newDateArrayIndex);          
+       
+        
 
           setDataCandles({...res.data})       
 
@@ -113,6 +108,7 @@ const Plot = ({ history, match }) => {
           setLoading(false);
           if (err.response.status === 400) toast.error(err.response.data);
         });
+        setDataIndex(dataIndex3)
     }
   },[currentYear, fromDate, toDate, user.token, selectedPair]);
 

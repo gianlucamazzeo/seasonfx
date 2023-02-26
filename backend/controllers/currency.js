@@ -131,15 +131,7 @@ exports.readLocal = async (req, res) => {
       res.json(r);
     
     })
-  //  return dataRes.status(200)
-
-    //    console.log(dataRes)
-
-    //   const { name } = req.params;
-    // const category = await new Category({ name, slug: slugify(name) }).save();
-    // res.json(category);
-    //    res.json(await new Currency({ name, slug: slugify(name) }).save());
-  } catch (err) {
+   } catch (err) {
     console.log(err);
     res.status(400).send("Get dataPair failed");
   }
