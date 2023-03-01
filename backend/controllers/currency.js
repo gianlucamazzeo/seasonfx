@@ -17,7 +17,6 @@ exports.create = async (req, res) => {
 
 exports.readLocal = async (req, res) => {
   try {
-
     console.log(req.params);
 
     const { id, fromData, toData, granularity } = req.params;
@@ -57,8 +56,8 @@ exports.readLocal = async (req, res) => {
 
     //   let dataResponse = await Pair.findById(id).exec();
 
-//    console.log(new Date(newFromData7 + "T22:00:00.000Z"));
-//    console.log(new Date(newToData7 + "T22:00:00.000Z"));
+    //    console.log(new Date(newFromData7 + "T22:00:00.000Z"));
+    //    console.log(new Date(newToData7 + "T22:00:00.000Z"));
 
     let dataRes = Pair.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(id) } },
@@ -87,39 +86,63 @@ exports.readLocal = async (req, res) => {
       { $project: { _id: "$_id._id", candles: 1 } },
     ]).exec((err, list) => {
       if (err) throw err;
-      const data3splitFrom = newFromData3.split('-');
-      const data1splitTo = newToData1.split('-');
-      const data5splitFrom = newFromData5.split('-');
-      const data7splitFrom = newFromData7.split('-');
-     
-      const media3Period = list[0].candles.filter(obj => {
+      const data3splitFrom = newFromData3.split("-");
+      const data1splitTo = newToData1.split("-");
+      const data5splitFrom = newFromData5.split("-");
+      const data7splitFrom = newFromData7.split("-");
+
+      const media3Period = list[0].candles.filter((obj) => {
         const date = new Date(obj.time);
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // i mesi in JS partono da 0 (gennaio) e finiscono a 11 (dicembre)
         const day = date.getDate();
-        return year >= data3splitFrom[0] && year <= data1splitTo[0] && month >= parseInt(data3splitFrom[1],10) && month <= parseInt(data1splitTo[1],10) && day >= parseInt(data3splitFrom[2],10) && day <= parseInt(data1splitTo[1],10);
+        const yearFrom = parseInt(data3splitFrom[0]);
+        const yearTo = parseInt(data1splitTo[0]);
+        const monthFrom = parseInt(data3splitFrom[1], 10);
+        const monthTo = parseInt(data1splitTo[1], 10);
+        const dayFrom = parseInt(data3splitFrom[2], 10);
+        const dayTo = parseInt(data1splitTo[2], 10);
+
+
+        return (
+          year >= yearFrom &&
+          year <= yearTo &&
+          month >= monthFrom &&
+          month <=  monthTo &&
+          day >=  dayFrom &&
+          day <= dayTo
+        );
       });
 
       let media5Period = list[0].candles.filter((obj) => {
         const date = new Date(obj.time);
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // i mesi in JS partono da 0 (gennaio) e finiscono a 11 (dicembre)
-        const day = date.getDate();        
-        return year >= data5splitFrom[0] && year <= data1splitTo[0] && month >= parseInt(data5splitFrom[1],10) && month <= parseInt(data1splitTo[1],10) && day >= parseInt(data5splitFrom[2],10) && day <= parseInt(data1splitTo[1],10);
-
+        const day = date.getDate();
+        return (
+          year >= data5splitFrom[0] &&
+          year <= data1splitTo[0] &&
+          month >= parseInt(data5splitFrom[1], 10) &&
+          month <= parseInt(data1splitTo[1], 10) &&
+          day >= parseInt(data5splitFrom[2], 10) &&
+          day <= parseInt(data1splitTo[2], 10)
+        );
       });
 
       let media7Period = list[0].candles.filter((obj) => {
         const date = new Date(obj.time);
         const year = date.getFullYear();
         const month = date.getMonth() + 1; // i mesi in JS partono da 0 (gennaio) e finiscono a 11 (dicembre)
-        const day = date.getDate();        
-        return year >= data7splitFrom[0] && year <= data1splitTo[0] && month >= parseInt(data7splitFrom[1],10) && month <= parseInt(data1splitTo[1],10) && day >= parseInt(data7splitFrom[2],10) && day <= parseInt(data1splitTo[1],10);
+        const day = date.getDate();
+        return (
+          year >= data7splitFrom[0] &&
+          year <= data1splitTo[0] &&
+          month >= parseInt(data7splitFrom[1], 10) &&
+          month <= parseInt(data1splitTo[1], 10) &&
+          day >= parseInt(data7splitFrom[2], 10) &&
+          day <= parseInt(data1splitTo[1], 10)
+        );
       });
-
-
-
-    
 
       //  console.log(media5Period);
 
@@ -129,9 +152,8 @@ exports.readLocal = async (req, res) => {
         media7: media7Period,
       };
       res.json(r);
-    
-    })
-   } catch (err) {
+    });
+  } catch (err) {
     console.log(err);
     res.status(400).send("Get dataPair failed");
   }
