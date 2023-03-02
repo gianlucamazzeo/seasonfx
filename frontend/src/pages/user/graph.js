@@ -23,20 +23,21 @@ const Graph = (props) => {
 
           const numDay = new Date(dateObj.firstY).getDay();
           const dateFormatFriday = new Date(dateObj.firstY);
-
+          let lastFridayDateSat;
+          let fridaySat;
+          let lastFridayDateSun;
+          let fridaySun;
           if (numDay === 6) {
             console.log(numDay + " - " + dateObj.firstY);
-            let lastFridayDateSat = dateFormatFriday.setDate(dateFormatFriday.getDate() - 1);
-            let fridaySat = new Date(lastFridayDateSat);
-            
-            console.log(fridaySat);
+             lastFridayDateSat = dateFormatFriday.setDate(dateFormatFriday.getDate() - 1);
+             fridaySat = new Date(lastFridayDateSat);
+
           }
 
           if (numDay === 0) {
             console.log(numDay + " - " + dateObj.firstY);
-            let lastFridayDateSun =  dateFormatFriday.setDate(dateFormatFriday.getDate() - 2);
-            let fridaySun = new Date(lastFridayDateSun);
-            console.log(fridaySun);
+             lastFridayDateSun =  dateFormatFriday.setDate(dateFormatFriday.getDate() - 2);
+             fridaySun = new Date(lastFridayDateSun);
           }
 
 
@@ -48,7 +49,42 @@ const Graph = (props) => {
             date === dateObj.thirdY
           ) {
             acc += parseFloat(curr.ask.c.$numberDecimal);
-          }
+          } 
+
+/*
+for (const currentObj of dateArray[0]) {
+  currentObj.total = 0;
+  for (const currentAsk of askArray) {
+    let askTime = new Date(currentAsk.time);
+    let objDate = new Date(currentObj.firstY);
+    let objDay = objDate.getDay();
+
+    if (objDay === 6) {
+      // sabato
+      objDate.setDate(objDate.getDate() - 1);
+    } else if (objDay === 0) {
+      // domenica
+      objDate.setDate(objDate.getDate() - 2);
+    }
+
+    let fridayBefore = new Date(objDate);
+    fridayBefore.setDate(fridayBefore.getDate() - (objDay + 1) % 7);
+
+    if (askTime.getTime() >= fridayBefore.getTime() && askTime.getTime() < objDate.getTime()) {
+      currentObj.total += parseFloat(currentAsk.ask.c.$numberDecimal);
+    }
+  }
+}
+
+
+
+
+*/
+
+
+
+
+
 
           return acc;
         }, 0);
