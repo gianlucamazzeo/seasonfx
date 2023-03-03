@@ -125,7 +125,7 @@ exports.readLocal = async (req, res) => {
           month >= parseInt(data5splitFrom[1], 10) &&
           month <= parseInt(data1splitTo[1], 10) &&
           day >= parseInt(data5splitFrom[2], 10) &&
-          day <= parseInt(data1splitTo[2P], 10)
+          day <= parseInt(data1splitTo[2], 10)
         );
       });
 
