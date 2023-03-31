@@ -1,47 +1,63 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, memo, useMemo } from "react";
 import UserNav from "../../components/nav/UserNav";
 import { Button, message, Space, Select, DatePicker } from "antd";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import moment from "moment";
-import { rimuoviDuplicatiPerData } from "../utils/util";
+import { rimuoviDuplicatiPerData, formatDate } from "../utils/util";
+import { getDataCurrencyDay } from "../../functions/currency";
 
 const Graph = (props) => {
-  const { dataCandles, dataIndex } = props;
+  const { user } = useSelector((state) => ({ ...state }));
+  const { dataCandles, dataIndex, dataCurId } = props;
+  const [extraData, setExtraData] = useState([
+    { selectedPair: "", fromDate: "", granularity: "D" },
+  ]);
 
   let media3 = dataCandles.media3;
   let media5 = dataCandles.media5;
-  console.log(media5);
+  //  console.log(media5);
 
+  /*  const getDataDay = (customData, user) => {
+    const { selectedPair, fromDate, granularity } = customData;
+
+    if (selectedPair && fromDate && granularity) {
+      const ObjectDataPost = {
+        id: selectedPair,
+        fromDate: fromDate,
+        granularity: granularity,
+      };
+
+      debugger
+      /*
+      getDataCurrencyDay(ObjectDataPost, user.token)
+        .then((res) => {
+         
+          console.log('resDay ' + JSON.stringify(res.data));
+        })
+        .catch((err) => {
+          console.log(err);
+
+          if (err.response.status === 400) toast.error(err.response.data);
+        });
+        
+    }
+  };
+*/
+
+  /*
+  const memoizedGetDataDay = useMemo(() => {
+    return getDataDay(dataCustom, user);
+  }, [dataCustom, user]);
+*/
   if (dataIndex) {
     if ((media3 && media3.length) || (media5 && media5.length)) {
       const datiMedia3SenzaDuplicati = rimuoviDuplicatiPerData(media3);
       const datiMedia5SenzaDuplicati = rimuoviDuplicatiPerData(media5);
+
       const result = dataIndex[0]?.map((dateObj) => {
         let sum3 = datiMedia3SenzaDuplicati.reduce((acc, curr) => {
           const date = new Date(curr.time).toISOString().slice(0, 10);
-
-          const numDay = new Date(dateObj.firstY).getDay();
-          const dateFormatFriday = new Date(dateObj.firstY);
-          let lastFridayDateSat;
-          let fridaySat;
-          let lastFridayDateSun;
-          let fridaySun;
-          if (numDay === 6) {
-            console.log(numDay + " - " + dateObj.firstY);
-             lastFridayDateSat = dateFormatFriday.setDate(dateFormatFriday.getDate() - 1);
-             fridaySat = new Date(lastFridayDateSat);
-
-          }
-
-          if (numDay === 0) {
-            console.log(numDay + " - " + dateObj.firstY);
-             lastFridayDateSun =  dateFormatFriday.setDate(dateFormatFriday.getDate() - 2);
-             fridaySun = new Date(lastFridayDateSun);
-          }
-
-
-
 
           if (
             date === dateObj.firstY ||
@@ -49,42 +65,7 @@ const Graph = (props) => {
             date === dateObj.thirdY
           ) {
             acc += parseFloat(curr.ask.c.$numberDecimal);
-          } 
-
-/*
-for (const currentObj of dateArray[0]) {
-  currentObj.total = 0;
-  for (const currentAsk of askArray) {
-    let askTime = new Date(currentAsk.time);
-    let objDate = new Date(currentObj.firstY);
-    let objDay = objDate.getDay();
-
-    if (objDay === 6) {
-      // sabato
-      objDate.setDate(objDate.getDate() - 1);
-    } else if (objDay === 0) {
-      // domenica
-      objDate.setDate(objDate.getDate() - 2);
-    }
-
-    let fridayBefore = new Date(objDate);
-    fridayBefore.setDate(fridayBefore.getDate() - (objDay + 1) % 7);
-
-    if (askTime.getTime() >= fridayBefore.getTime() && askTime.getTime() < objDate.getTime()) {
-      currentObj.total += parseFloat(currentAsk.ask.c.$numberDecimal);
-    }
-  }
-}
-
-
-
-
-*/
-
-
-
-
-
+          }
 
           return acc;
         }, 0);
@@ -110,11 +91,93 @@ for (const currentObj of dateArray[0]) {
         };
       });
 
+      //  console.log(result);
+      //  setExtraData(result)
+      for (var i = 0; i < result?.length; i++) {
+        // Check if firstY is a weekend
+        let currentDateFirstY = new Date(result[i].firstY);
+        let currentYearFirstY = currentDateFirstY.getFullYear();
+        let currentMonthFirstY = currentDateFirstY.getMonth();
+        let currentDayOfWeekFirstY = currentDateFirstY.getDay();
+
+        /// secondY
+        let currentDateSecondY = new Date(result[i].secondY);
+        let currentYearSecondY = currentDateFirstY.getFullYear();
+        let currentMonthSecondY = currentDateFirstY.getMonth();
+        let currentDayOfWeekSecondY = currentDateFirstY.getDay();
+
+        if (currentDayOfWeekFirstY === 0 || currentDayOfWeekFirstY === 6) {
+          // If it's a Sunday, add 1 day
+          if (
+            currentDayOfWeekFirstY === 0 &&
+            currentDateFirstY.getFullYear() === currentYearFirstY
+          ) {
+            currentDateFirstY.setDate(currentDateFirstY.getDate() - 2);
+            result[i].extraDayFirstY = currentDateFirstY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekFirstY === 6 &&
+            currentDateFirstY.getFullYear() === currentYearFirstY
+          ) {
+            currentDateFirstY.setDate(currentDateFirstY.getDate() - 1);
+            result[i].extraDayFirstY = currentDateFirstY
+              .toISOString()
+              .slice(0, 10);
+          } else {
+            
+          }
+          /*else { // If it's a Saturday, add 2 days
+                currentDate.setDate(currentDate.getDate() + 2);
+            }
+            */
+
+          // Check if the new date is in the same year as firstY
+
+          /*else { // Otherwise, it's in the next year
+                extraDaySecondY = currentDate.toISOString().slice(0, 10);
+            }
+            */
+        }
+        /*
+        if (currentDayOfWeekSecondY === 0 || currentDayOfWeekSecondY === 6) {
+          // If it's a Sunday, add 1 day
+          if (
+            currentDayOfWeekSecondY === 0 &&
+            currentDateSecondY.getFullYear() === currentYearSecondY
+          ) {
+            currentDateSecondY.setDate(currentDateSecondY.getDate() - 2);
+            result[i].extraDaySecondY = currentDateSecondY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekSecondY === 6 &&
+            currentDateSecondY.getFullYear() === currentYearSecondY
+          ) {
+            currentDateSecondY.setDate(currentDateSecondY.getDate() - 1);
+            result[i].extraDaySecondY = currentDateSecondY
+              .toISOString()
+              .slice(0, 10);
+          } else {
+            return true;
+          }
+        }
+        */
+      }
+      
       console.log(result);
     }
 
     //console.log(result);
   }
+
+  //////////////////////////////////////////////////////////////////
+
+  //console.log(extraData)
+
+  ///////////////////////////////////////////////////////////////
+
+  // cicla i risulta di
 
   return <div>Graph</div>;
 };

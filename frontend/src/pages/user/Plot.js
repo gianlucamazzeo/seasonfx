@@ -32,9 +32,10 @@ const Plot = ({ history, match }) => {
         loading={loading}
         dataCandles={dataCandles}
         dataIndex={dataIndex}
+        dataCurId={selectedPair}
       />
     ),
-    [dataCandles, loading, dataIndex]
+    [dataCandles, loading, dataIndex, selectedPair]
   );
 
   const handleChange = useCallback((value) => {
@@ -44,7 +45,6 @@ const Plot = ({ history, match }) => {
   const changePicker = useCallback((date, dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
-    //  console.log(date, dateString);
   }, []);
 
   const handleSubmit = useCallback(
@@ -117,11 +117,14 @@ const Plot = ({ history, match }) => {
             setLoading(false);
             if (err.response.status === 400) toast.error(err.response.data);
           });
+
         setDataIndex(dataIndex);
       }
     },
     [currentYear, fromDate, toDate, user.token, selectedPair]
   );
+
+
 
   useEffect(() => {
     const currentYear = new Date().getFullYear();

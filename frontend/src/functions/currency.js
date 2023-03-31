@@ -16,6 +16,14 @@ export const getLocalDataCurrency = async ({id,fromData,toData,granularity}, aut
     },
   })
 
+export const getDataCurrencyDay = async({selectedPair,fromDate, granularity}, authtoken) =>   
+await axios.get(`${process.env.REACT_APP_API}/currency-local/${selectedPair}/${fromDate}/${fromDate}/${granularity}`,{
+  headers: {
+    authtoken
+  }
+})
+
+
 
 export const getCurrency = async (slug) =>
   await axios.get(`${process.env.REACT_APP_API}/currency/${slug}`);
@@ -53,6 +61,7 @@ export const createCurrency = async (currency, authtoken) =>
       authtoken,
     },
   });
+  
 
 
 
