@@ -82,7 +82,8 @@ const Plot = ({ history, match }) => {
               var year = el.getFullYear();
               var month = el.getMonth();
               var day = el.getDate();
-
+              let period7yearsAgoTimestamp = new Date(year - 7, month, day);
+              let period6yearsAgoTimestamp = new Date(year - 6, month, day);
               let period5yearsAgoTimestamp = new Date(year - 5, month, day);
               let period4yearsAgoTimestamp = new Date(year - 4, month, day);
               let period3yearsAgoTimestamp = new Date(year - 3, month, day);
@@ -95,6 +96,8 @@ const Plot = ({ history, match }) => {
                 thirdY: formatDate(period3yearsAgoTimestamp),
                 fourth: formatDate(period4yearsAgoTimestamp),
                 fiveth: formatDate(period5yearsAgoTimestamp),
+                sixth: formatDate(period6yearsAgoTimestamp),
+                seventh: formatDate(period7yearsAgoTimestamp),
               }; //  ['Work', 9]
               //mapPeriodLastYear.push(timestampDate);
 

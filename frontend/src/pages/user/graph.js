@@ -16,6 +16,7 @@ const Graph = (props) => {
 
   let media3 = dataCandles.media3;
   let media5 = dataCandles.media5;
+  let media7 = dataCandles.media7;
   //  console.log(media5);
 
   /*  const getDataDay = (customData, user) => {
@@ -51,14 +52,26 @@ const Graph = (props) => {
   }, [dataCustom, user]);
 */
   if (dataIndex) {
-    if ((media3 && media3.length) || (media5 && media5.length)) {
+    if (
+      (media3 && media3.length) ||
+      (media5 && media5.length) ||
+      (media7 && media7.length)
+    ) {
       const datiMedia3SenzaDuplicati = rimuoviDuplicatiPerData(media3);
       const datiMedia5SenzaDuplicati = rimuoviDuplicatiPerData(media5);
+      const datiMedia7SenzaDuplicati = rimuoviDuplicatiPerData(media7);
 
       const result = dataIndex[0]?.map((dateObj) => {
-        let sum3 = datiMedia3SenzaDuplicati.reduce((acc, curr) => {
-          const date = new Date(curr.time).toISOString().slice(0, 10);
+        return {
+          ...dateObj,
+          totale3Y: 0,
+          totale5Y: 0,
+          totale7Y: 0,
+        };
+        //   let sum3 = datiMedia3SenzaDuplicati.reduce((acc, curr) => {
+        //      const date = new Date(curr.time).toISOString().slice(0, 10);
 
+        /*
           if (
             date === dateObj.firstY ||
             date === dateObj.secondY ||
@@ -66,12 +79,15 @@ const Graph = (props) => {
           ) {
             acc += parseFloat(curr.ask.c.$numberDecimal);
           }
+          */
 
-          return acc;
-        }, 0);
+        //     return acc;
+        //   }, 0);
 
-        let sum5 = datiMedia5SenzaDuplicati.reduce((acc5, curr) => {
-          const date = new Date(curr.time).toISOString().slice(0, 10);
+        //   let sum5 = datiMedia5SenzaDuplicati.reduce((acc5, curr) => {
+        //      const date = new Date(curr.time).toISOString().slice(0, 10);
+
+        /*
           if (
             date === dateObj.firstY ||
             date === dateObj.secondY ||
@@ -81,14 +97,28 @@ const Graph = (props) => {
           ) {
             acc5 += parseFloat(curr.ask.c.$numberDecimal);
           }
-          return acc5;
-        }, 0);
+          */
+        //      return acc5;
+        //    }, 0);
 
-        return {
-          ...dateObj,
-          totale3Y: sum3.toFixed(5),
-          totale5Y: sum5.toFixed(5),
-        };
+        //    let sum7 = datiMedia7SenzaDuplicati.reduce((acc7, curr) => {
+        //      const date = new Date(curr.time).toISOString().slice(0, 10);
+        /*
+          if (
+            date === dateObj.firstY ||
+            date === dateObj.secondY ||
+            date === dateObj.thirdY ||
+            date === dateObj.fourth ||
+            date === dateObj.fiveth ||
+            date === dateObj.sixth ||
+            date === dateObj.seventh 
+          ) {
+            acc7 += parseFloat(curr.ask.c.$numberDecimal);
+          }
+          */
+        //    return acc7;
+
+        //  }, 0);
       });
 
       //  console.log(result);
@@ -102,9 +132,39 @@ const Graph = (props) => {
 
         /// secondY
         let currentDateSecondY = new Date(result[i].secondY);
-        let currentYearSecondY = currentDateFirstY.getFullYear();
-        let currentMonthSecondY = currentDateFirstY.getMonth();
-        let currentDayOfWeekSecondY = currentDateFirstY.getDay();
+        let currentYearSecondY = currentDateSecondY.getFullYear();
+        let currentMonthSecondY = currentDateSecondY.getMonth();
+        let currentDayOfWeekSecondY = currentDateSecondY.getDay();
+
+        /// thirdY
+        let currentDateThirdY = new Date(result[i].thirdY);
+        let currentYearThirdY = currentDateThirdY.getFullYear();
+        let currentMonthThirdY = currentDateThirdY.getMonth();
+        let currentDayOfWeekThirdY = currentDateThirdY.getDay();
+
+        // fourth
+        let currentDateFourthY = new Date(result[i].fourth);
+        let currentYearFourthY = currentDateFourthY.getFullYear();
+        let currentMonthFourthY = currentDateFourthY.getMonth();
+        let currentDayOfWeekFourthY = currentDateFourthY.getDay();
+
+        // fiveth
+        let currentDateFivethY = new Date(result[i].fiveth);
+        let currentYearFivethY = currentDateFivethY.getFullYear();
+        let currentMonthFivethY = currentDateFivethY.getMonth();
+        let currentDayOfWeekFivethY = currentDateFivethY.getDay();
+
+        // sixth
+        let currentDateSixthY = new Date(result[i].sixth);
+        let currentYearSixthY = currentDateSixthY.getFullYear();
+        let currentMonthSixthY = currentDateSixthY.getMonth();
+        let currentDayOfWeekSixthY = currentDateSixthY.getDay();
+
+        // seventh
+        let currentDateSeventhY = new Date(result[i].seventh);
+        let currentYearSeventhY = currentDateSeventhY.getFullYear();
+        let currentMonthSeventhY = currentDateSeventhY.getMonth();
+        let currentDayOfWeekSeventhY = currentDateSeventhY.getDay();
 
         if (currentDayOfWeekFirstY === 0 || currentDayOfWeekFirstY === 6) {
           // If it's a Sunday, add 1 day
@@ -113,7 +173,7 @@ const Graph = (props) => {
             currentDateFirstY.getFullYear() === currentYearFirstY
           ) {
             currentDateFirstY.setDate(currentDateFirstY.getDate() - 2);
-            result[i].extraDayFirstY = currentDateFirstY
+            result[i].extraDayfirstY = currentDateFirstY
               .toISOString()
               .slice(0, 10);
           } else if (
@@ -121,33 +181,19 @@ const Graph = (props) => {
             currentDateFirstY.getFullYear() === currentYearFirstY
           ) {
             currentDateFirstY.setDate(currentDateFirstY.getDate() - 1);
-            result[i].extraDayFirstY = currentDateFirstY
+            result[i].extraDayfirstY = currentDateFirstY
               .toISOString()
               .slice(0, 10);
-          } else {
-            
           }
-          /*else { // If it's a Saturday, add 2 days
-                currentDate.setDate(currentDate.getDate() + 2);
-            }
-            */
-
-          // Check if the new date is in the same year as firstY
-
-          /*else { // Otherwise, it's in the next year
-                extraDaySecondY = currentDate.toISOString().slice(0, 10);
-            }
-            */
         }
-        /*
+
         if (currentDayOfWeekSecondY === 0 || currentDayOfWeekSecondY === 6) {
-          // If it's a Sunday, add 1 day
           if (
             currentDayOfWeekSecondY === 0 &&
             currentDateSecondY.getFullYear() === currentYearSecondY
           ) {
             currentDateSecondY.setDate(currentDateSecondY.getDate() - 2);
-            result[i].extraDaySecondY = currentDateSecondY
+            result[i].extraDaysecondY = currentDateSecondY
               .toISOString()
               .slice(0, 10);
           } else if (
@@ -155,17 +201,138 @@ const Graph = (props) => {
             currentDateSecondY.getFullYear() === currentYearSecondY
           ) {
             currentDateSecondY.setDate(currentDateSecondY.getDate() - 1);
-            result[i].extraDaySecondY = currentDateSecondY
+            result[i].extraDaysecondY = currentDateSecondY
               .toISOString()
               .slice(0, 10);
-          } else {
-            return true;
           }
         }
-        */
+
+        if (currentDayOfWeekThirdY === 0 || currentDayOfWeekThirdY === 6) {
+          if (
+            currentDayOfWeekThirdY === 0 &&
+            currentDateThirdY.getFullYear() === currentYearThirdY
+          ) {
+            currentDateThirdY.setDate(currentDateThirdY.getDate() - 2);
+            result[i].extraDaythirdY = currentDateThirdY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekThirdY === 6 &&
+            currentDateThirdY.getFullYear() === currentYearThirdY
+          ) {
+            currentDateThirdY.setDate(currentDateThirdY.getDate() - 1);
+            result[i].extraDaythirdY = currentDateThirdY
+              .toISOString()
+              .slice(0, 10);
+          }
+        }
+
+        if (currentDayOfWeekFourthY === 0 || currentDayOfWeekFourthY === 6) {
+          if (
+            currentDayOfWeekFourthY === 0 &&
+            currentDateFourthY.getFullYear() === currentYearFourthY
+          ) {
+            currentDateFourthY.setDate(currentDateFourthY.getDate() - 2);
+            result[i].extraDayfourth = currentDateFourthY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekFourthY === 6 &&
+            currentDateFourthY.getFullYear() === currentYearFourthY
+          ) {
+            currentDateFourthY.setDate(currentDateFourthY.getDate() - 1);
+            result[i].extraDayfourth = currentDateFourthY
+              .toISOString()
+              .slice(0, 10);
+          }
+        }
+
+        if (currentDayOfWeekFivethY === 0 || currentDayOfWeekFivethY === 6) {
+          if (
+            currentDayOfWeekFivethY === 0 &&
+            currentDateFivethY.getFullYear() === currentYearFivethY
+          ) {
+            currentDateFivethY.setDate(currentDateFivethY.getDate() - 2);
+            result[i].extraDayfiveth = currentDateFivethY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekFivethY === 6 &&
+            currentDateFivethY.getFullYear() === currentYearFivethY
+          ) {
+            currentDateFivethY.setDate(currentDateFivethY.getDate() - 1);
+            result[i].extraDayfiveth = currentDateFivethY
+              .toISOString()
+              .slice(0, 10);
+          }
+        }
+
+        if (currentDayOfWeekSixthY === 0 || currentDayOfWeekSixthY === 6) {
+          if (
+            currentDayOfWeekSixthY === 0 &&
+            currentDateSixthY.getFullYear() === currentYearSixthY
+          ) {
+            currentDateSixthY.setDate(currentDateSixthY.getDate() - 2);
+            result[i].extraDaysixth = currentDateSixthY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekSixthY === 6 &&
+            currentDateSixthY.getFullYear() === currentYearSixthY
+          ) {
+            currentDateSixthY.setDate(currentDateSixthY.getDate() - 1);
+            result[i].extraDaysixth = currentDateSixthY
+              .toISOString()
+              .slice(0, 10);
+          }
+        }
+
+        if (currentDayOfWeekSeventhY === 0 || currentDayOfWeekSeventhY === 6) {
+          if (
+            currentDayOfWeekSeventhY === 0 &&
+            currentDateSeventhY.getFullYear() === currentYearSeventhY
+          ) {
+            currentDateSeventhY.setDate(currentDateSeventhY.getDate() - 2);
+            result[i].extraDayseventh = currentDateSeventhY
+              .toISOString()
+              .slice(0, 10);
+          } else if (
+            currentDayOfWeekSeventhY === 6 &&
+            currentDateSeventhY.getFullYear() === currentYearSeventhY
+          ) {
+            currentDateSeventhY.setDate(currentDateSeventhY.getDate() - 1);
+            result[i].extraDayseventh = currentDateSeventhY
+              .toISOString()
+              .slice(0, 10);
+          }
+        }
       }
-      
-      console.log(result);
+
+      const extraDays = [
+        "extraDayfirstY",
+        "extraDaysecondY",
+        "extraDaythirdY",
+        "extraDayfourthY",
+        "extraDayFivethY",
+        "extraDaySixthY",
+        "extraDaySeventhY",
+      ];
+
+      const sumResult = result?.map((obj) => {
+      //  console.log(obj)
+        for (const extraDay of extraDays) {
+          if (obj?.firstY.includes(obj?.hasOwnProperty(obj?.firstY))) {
+
+              console.log(obj.currentDateFirstY)
+
+          }
+
+        }
+
+     
+      });
+
+      //  console.log(result);
     }
 
     //console.log(result);
