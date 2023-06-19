@@ -43,10 +43,10 @@ exports.create = async (req, res) => {
         fromDateSplit[0],
         fromDateSplit[1] - 1,
         fromDateSplit[2].substring(0, 2),
-        22,
-        00,
-        00,
-        00
+        "22",
+        "00",
+        "00",
+        "00"
       );
       let toDateTimestamp = new Date(
         toDateSplit[0],

@@ -17,8 +17,6 @@ exports.create = async (req, res) => {
 
 exports.readLocal = async (req, res) => {
   try {
-    console.log(req.params);
-
     const { id, fromData, toData, granularity } = req.params;
     let from7YearAgo = fromData.substring(0, 4) - 7;
     let from6YearAgo = fromData.substring(0, 4) - 6;
@@ -103,13 +101,12 @@ exports.readLocal = async (req, res) => {
         const dayFrom = parseInt(data3splitFrom[2], 10);
         const dayTo = parseInt(data1splitTo[2], 10);
 
-
         return (
           year >= yearFrom &&
           year <= yearTo &&
           month >= monthFrom &&
-          month <=  monthTo &&
-          day >=  dayFrom &&
+          month <= monthTo &&
+          day >= dayFrom &&
           day <= dayTo
         );
       });
@@ -144,8 +141,6 @@ exports.readLocal = async (req, res) => {
         );
       });
 
-      //  console.log(media5Period);
-
       let r = {
         media3: media3Period,
         media5: media5Period,
@@ -165,6 +160,45 @@ exports.list = async (req, res) =>
 exports.read = async (req, res) => {
   let currency = await Currency.findOne({ slug: req.params.slug }).exec();
   res.json(currency);
+};
+
+exports.dataDay = async (req, res) => {
+  try {
+    const { id, fromData, toData, granularity } = req.params;
+    const formattedDate = new Date(fromData).toISOString().split("T")[0]; // Converte la data in oggetto Date e ottiene la parte della data
+    console.log(formattedDate);
+    const result = await Pair.aggregate([
+     
+      {
+        $match: {
+          "candles.time": new Date(formattedDate + "T21:00:00.000Z"),
+        },
+      },
+      {
+        $project: {
+          candles: {
+            $filter: {
+              input: "$candles",
+              as: "candle",
+              cond: {
+                $eq: [
+                  "$$candle.time",
+                  new Date(formattedDate + "T21:00:00.000Z"),
+                ],
+              },
+            },
+          },
+        },
+      },
+    ]).exec();
+    res.json(result)
+console.log(result)
+    // Fai qualcosa con l'array "candles" risultante
+  } catch (error) {
+    console.log(error);
+  }
+
+  //let getDataDay = await
 };
 
 exports.update = async (req, res) => {
@@ -187,5 +221,39 @@ exports.remove = async (req, res) => {
     res.json(deleted);
   } catch (err) {
     res.status(400).send("Create delete failed");
+  }
+};
+
+exports.readSingleData = async (req, res) => {
+  try {
+    const { id, fromData, toData, granularity } = req.params;
+    const formatDate = fromData.substring(0, 4);
+    const formattedDate = new Date(formatDate); // Converte la data in oggetto Date
+
+    const result = await Pair.aggregate([
+      {
+        $match: {
+          "candles.time": formattedDate,
+        },
+      },
+      {
+        $project: {
+          candles: {
+            $filter: {
+              input: "$candles",
+              as: "candle",
+              cond: {
+                $eq: ["$$candle.time", formattedDate],
+              },
+            },
+          },
+        },
+      },
+    ]);
+
+    // Fai qualcosa con l'array "candles" risultante
+  } catch (error) {
+    console.error(error);
+    // Gestisci l'errore
   }
 };

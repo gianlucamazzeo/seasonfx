@@ -33,6 +33,7 @@ const Plot = ({ history, match }) => {
         dataCandles={dataCandles}
         dataIndex={dataIndex}
         dataCurId={selectedPair}
+        selectedPair={selectedPair}
       />
     ),
     [dataCandles, loading, dataIndex, selectedPair]

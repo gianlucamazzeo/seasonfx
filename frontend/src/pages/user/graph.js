@@ -9,17 +9,15 @@ import { getDataCurrencyDay } from "../../functions/currency";
 
 const Graph = (props) => {
   const { user } = useSelector((state) => ({ ...state }));
-  const { dataCandles, dataIndex, dataCurId } = props;
-  const [extraData, setExtraData] = useState([
-    { selectedPair: "", fromDate: "", granularity: "D" },
-  ]);
+  const { dataCandles, dataIndex, dataCurId, selectedPair } = props;
+  const [getUser, setGetUser] = useState(user);
 
   let media3 = dataCandles.media3;
   let media5 = dataCandles.media5;
   let media7 = dataCandles.media7;
   //  console.log(media5);
 
-  /*  const getDataDay = (customData, user) => {
+  const getDataDay = (customData) => {
     const { selectedPair, fromDate, granularity } = customData;
 
     if (selectedPair && fromDate && granularity) {
@@ -29,22 +27,19 @@ const Graph = (props) => {
         granularity: granularity,
       };
 
-      debugger
-      /*
-      getDataCurrencyDay(ObjectDataPost, user.token)
+     
+
+      getDataCurrencyDay(ObjectDataPost, getUser.token)
         .then((res) => {
-         
-          console.log('resDay ' + JSON.stringify(res.data));
+          return res;
         })
         .catch((err) => {
           console.log(err);
 
           if (err.response.status === 400) toast.error(err.response.data);
         });
-        
     }
   };
-*/
 
   /*
   const memoizedGetDataDay = useMemo(() => {
@@ -62,32 +57,25 @@ const Graph = (props) => {
       const datiMedia7SenzaDuplicati = rimuoviDuplicatiPerData(media7);
 
       const result = dataIndex[0]?.map((dateObj) => {
-        return {
-          ...dateObj,
-          totale3Y: 0,
-          totale5Y: 0,
-          totale7Y: 0,
-        };
-        //   let sum3 = datiMedia3SenzaDuplicati.reduce((acc, curr) => {
-        //      const date = new Date(curr.time).toISOString().slice(0, 10);
+        console.log(dateObj);
 
-        /*
+        let sum3 = datiMedia3SenzaDuplicati.reduce((acc, curr) => {
+          const date = new Date(curr.time).toISOString().slice(0, 10);
           if (
             date === dateObj.firstY ||
             date === dateObj.secondY ||
             date === dateObj.thirdY
           ) {
-            acc += parseFloat(curr.ask.c.$numberDecimal);
+            let curDec = parseFloat(curr.ask.c.$numberDecimal);
+            acc += Math.round((curDec + Number.EPSILON) * 100) / 100;
           }
-          */
 
-        //     return acc;
-        //   }, 0);
+          return acc;
+        }, 0);
 
-        //   let sum5 = datiMedia5SenzaDuplicati.reduce((acc5, curr) => {
-        //      const date = new Date(curr.time).toISOString().slice(0, 10);
+        let sum5 = datiMedia5SenzaDuplicati.reduce((acc5, curr) => {
+          const date = new Date(curr.time).toISOString().slice(0, 10);
 
-        /*
           if (
             date === dateObj.firstY ||
             date === dateObj.secondY ||
@@ -95,15 +83,16 @@ const Graph = (props) => {
             date === dateObj.fourth ||
             date === dateObj.fiveth
           ) {
-            acc5 += parseFloat(curr.ask.c.$numberDecimal);
+            let curDec = parseFloat(curr.ask.c.$numberDecimal);
+            acc5 += Math.round((curDec + Number.EPSILON) * 100) / 100;
           }
-          */
-        //      return acc5;
-        //    }, 0);
 
-        //    let sum7 = datiMedia7SenzaDuplicati.reduce((acc7, curr) => {
-        //      const date = new Date(curr.time).toISOString().slice(0, 10);
-        /*
+          return acc5;
+        }, 0);
+
+        let sum7 = datiMedia7SenzaDuplicati.reduce((acc7, curr) => {
+             const date = new Date(curr.time).toISOString().slice(0, 10);
+        
           if (
             date === dateObj.firstY ||
             date === dateObj.secondY ||
@@ -113,12 +102,21 @@ const Graph = (props) => {
             date === dateObj.sixth ||
             date === dateObj.seventh 
           ) {
-            acc7 += parseFloat(curr.ask.c.$numberDecimal);
+            let curDec = parseFloat(curr.ask.c.$numberDecimal);
+            acc7 += parseFloat(curDec);
           }
-          */
-        //    return acc7;
+            return acc7;
 
-        //  }, 0);
+          }, 0);
+      
+
+        return {
+          ...dateObj,
+          totale3Y: sum3,
+          totale5Y: sum5,
+          totale7Y: sum7,
+        };
+
       });
 
       //  console.log(result);
@@ -312,27 +310,50 @@ const Graph = (props) => {
         "extraDayfirstY",
         "extraDaysecondY",
         "extraDaythirdY",
-        "extraDayfourthY",
-        "extraDayFivethY",
-        "extraDaySixthY",
-        "extraDaySeventhY",
+        "extraDayfourth",
+        "extraDayfiveth",
+        "extraDaysixth",
+        "extraDayseventh",
       ];
 
+      const newObj = {};
+
       const sumResult = result?.map((obj) => {
-      //  console.log(obj)
-        for (const extraDay of extraDays) {
-          if (obj?.firstY.includes(obj?.hasOwnProperty(obj?.firstY))) {
+        for (let i = 0; i < extraDays.length; i++) {
+          const property = extraDays[i];
+          if (obj.hasOwnProperty(property)) {
+            const propertyName = property.replace("extraDay", "");
 
-              console.log(obj.currentDateFirstY)
+            if (propertyName === "firstY") {
+              //   console.log(selectedPair, property, obj[propertyName], obj.extraDayfirstY);
 
+               getDataDay({
+                selectedPair: selectedPair,
+                fromDate: obj.extraDayfirstY,
+                granularity: "D",
+              });
+
+              // obj.totale3Y = (obj.totale3Y)+1.2321;
+            } else if (propertyName === "secondY") {
+              //        console.log(selectedPair, property, obj[propertyName], obj.extraDaysecondY);
+            } else if (propertyName === "thirdY") {
+              //      console.log(selectedPair, property, obj[propertyName], obj.extraDaythirdY);
+            } else if (propertyName === "fourth") {
+              //      console.log(selectedPair, property,  obj[propertyName], obj.extraDayfourth);
+            } else if (propertyName === "fiveth") {
+              //        console.log(selectedPair, property,  obj[propertyName], obj.extraDayfiveth);
+            } else if (propertyName === "sixth") {
+              //         console.log(selectedPair, property,  obj[propertyName], obj.extraDaysixth);
+            } else if (propertyName === "seventh") {
+              //         console.log(selectedPair, property,  obj[propertyName], obj.extraDayseventh);
+            }
+            //console.log(`Trovato: ${property}`);
           }
-
         }
-
-     
+        return obj;
       });
 
-      //  console.log(result);
+      console.log(sumResult);
     }
 
     //console.log(result);
