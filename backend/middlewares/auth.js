@@ -3,23 +3,25 @@ const User = require("../models/user");
 
 
 exports.authCheck = async (req, res, next) => {
-  // console.log(req.headers); // token
+   console.log('TOKEN: ' + req.headers.authtoken); // token
+ 
   try {
     const firebaseUser = await admin
       .auth()
       .verifyIdToken(req.headers.authtoken);
-    // console.log("FIREBASE USER IN AUTHCHECK", firebaseUser);
     req.user = firebaseUser;
+    console.log("AUTH CHECK entrato", req.user)
     next();
   } catch (err) {
     res.status(401).json({
-      err: "Invalid or expired token",
+      err: "Invalid",
     });
   }
 };
 
 exports.adminCheck = async (req, res, next) => {
   const { email } = req.user;
+  console.log("AUTH CHECK ADMIN", email);
 
   const adminUser = await User.findOne({ email }).exec();
 

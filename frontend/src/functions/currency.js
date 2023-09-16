@@ -23,6 +23,13 @@ await axios.get(`${process.env.REACT_APP_API}/day-currency/${id}/${fromDate}/${f
   }
 })
 
+export const getMostRecentDate = async (authtoken) =>
+await axios.get(`${process.env.REACT_APP_API}/mostRecentDate`, {
+  headers: {
+    authtoken
+  }
+});
+
 
 
 export const getCurrency = async (slug) =>

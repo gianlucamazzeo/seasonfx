@@ -6,6 +6,7 @@ const cors = require("cors");
 const {readdirSync} = require("fs");
 require("dotenv").config();
 
+
 // import routes
 const authRoutes = require("./routes/auth");
 

@@ -81,12 +81,17 @@ exports.create = async (req, res) => {
 
     const periodCandles = createRange(fromData, toData);
 
+
+
     const newObjData = {
       granularity: granularity,
       candles: periodCandles,
     };
 
     const filter = { _id: currencyPair._id };
+
+
+
     const eleCur = await CurrencyDataSet.findOne(filter);
     let msg;
 
@@ -127,15 +132,34 @@ exports.list = async (req, res) =>
 res.json(await Currency.find({}).sort({ createdAt: -1 }).exec());
 
 
-/*
-
-*/
 
 exports.all = async (req, res) => 
 res.json(await Currency.find({ id: "62fcf92818e12464410e7b18"})
 .populate(CurrencyDataSet)
 .exec());
 
+
+//  trova il candles.time più recente
+exports.getMostRecentDate = async (req, res) => {
+
+  try {
+   
+      const result = await CurrencyDataSet.aggregate([
+          { $unwind: "$candles" },
+          { $sort: { "candles.time": -1 } },
+          { $limit: 1 }
+      ]).exec();
+
+      if (result.length > 0) {
+          res.status(200).json({ mostRecentDate: result[0].candles.time });
+      } else {
+          res.status(404).json({ error: "Non sono state trovate date in candles." });
+      }
+  } catch (err) {
+    console.log(err);
+      res.status(500).json({ error: err.message });
+  }
+}
 
 
 
