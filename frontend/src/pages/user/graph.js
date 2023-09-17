@@ -27,7 +27,6 @@ const Graph = (props) => {
         granularity: granularity,
       };
 
-     
 
       getDataCurrencyDay(ObjectDataPost, getUser.token)
         .then((res) => {
@@ -57,7 +56,6 @@ const Graph = (props) => {
       const datiMedia7SenzaDuplicati = rimuoviDuplicatiPerData(media7);
 
       const result = dataIndex[0]?.map((dateObj) => {
-        console.log(dateObj);
 
         let sum3 = datiMedia3SenzaDuplicati.reduce((acc, curr) => {
           const date = new Date(curr.time).toISOString().slice(0, 10);
@@ -327,12 +325,13 @@ const Graph = (props) => {
             if (propertyName === "firstY") {
               //   console.log(selectedPair, property, obj[propertyName], obj.extraDayfirstY);
 
-               getDataDay({
+             let priceOneDay =  getDataDay({
                 selectedPair: selectedPair,
                 fromDate: obj.extraDayfirstY,
                 granularity: "D",
               });
 
+             
               // obj.totale3Y = (obj.totale3Y)+1.2321;
             } else if (propertyName === "secondY") {
               //        console.log(selectedPair, property, obj[propertyName], obj.extraDaysecondY);
@@ -353,7 +352,7 @@ const Graph = (props) => {
         return obj;
       });
 
-      console.log(sumResult);
+     
     }
 
     //console.log(result);

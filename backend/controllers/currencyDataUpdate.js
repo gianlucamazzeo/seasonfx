@@ -145,13 +145,29 @@ exports.getMostRecentDate = async (req, res) => {
   try {
    
       const result = await CurrencyDataSet.aggregate([
-          { $unwind: "$candles" },
-          { $sort: { "candles.time": -1 } },
-          { $limit: 1 }
-      ]).exec();
+        { $unwind: "$candles" },
+        {
+            $lookup: {
+                from: "currencies", // nome della collezione da cui unire
+                localField: "_id", // campo nella collezione corrente (CurrencyDataSet)
+                foreignField: "_id", // campo nella collezione da cui unire (currencies)
+                as: "currencyInfo" // nome dell'array in cui verranno inseriti i risultati uniti
+            }
+        },
+        { $unwind: "$currencyInfo" }, // Poiché $lookup restituisce un array, $unwind lo "apre" per ottenere un oggetto
+        { $sort: { "candles.time": -1 } },
+        { $limit: 1 },
+        {
+            $project: { // Seleziona solo i campi che ti interessano
+                "candles.time": 1,
+                "currencyName": "$currencyInfo.name"
+            }
+        }
+    ]).exec();
+   
 
       if (result.length > 0) {
-          res.status(200).json({ mostRecentDate: result[0].candles.time });
+          res.status(200).json( { mostRecentDate: result[0].candles.time, curName: result[0].currencyName } );
       } else {
           res.status(404).json({ error: "Non sono state trovate date in candles." });
       }

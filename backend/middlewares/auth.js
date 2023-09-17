@@ -10,7 +10,7 @@ exports.authCheck = async (req, res, next) => {
       .auth()
       .verifyIdToken(req.headers.authtoken);
     req.user = firebaseUser;
-    console.log("AUTH CHECK entrato", req.user)
+  
     next();
   } catch (err) {
     res.status(401).json({
@@ -21,8 +21,7 @@ exports.authCheck = async (req, res, next) => {
 
 exports.adminCheck = async (req, res, next) => {
   const { email } = req.user;
-  console.log("AUTH CHECK ADMIN", email);
-
+ 
   const adminUser = await User.findOne({ email }).exec();
 
   if (adminUser.role !== "admin") {

@@ -37,3 +37,8 @@
     transform: rotate(360deg);
   }
 }
+
+.mostRecentDate {
+  color: red;
+  font-size: 16px;
+}

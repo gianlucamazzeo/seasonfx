@@ -8,6 +8,7 @@ import {
   updateDataCurrency,
   getMostRecentDate,
 } from "../../../functions/currency";
+import  '../../../App.css';
 
 const { RangePicker } = DatePicker;
 
@@ -22,6 +23,7 @@ const CurrencyData = ({ history, match }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [mostRecentDate, setMostRecentDate] = useState("");
+  const [pairRecentDate, setPairRecentDate] = useState(""); 
 
   const handleChange = (value) => {
     setSelectedPair(value);
@@ -45,9 +47,11 @@ const CurrencyData = ({ history, match }) => {
   useEffect(() => {
     try {
       if (user.token) {
-        getMostRecentDate(user.token).then((c) =>
-          setMostRecentDate(c.data.mostRecentDate)
-        );
+        getMostRecentDate(user.token).then((c) => {
+          setMostRecentDate(c.data.mostRecentDate);
+          setPairRecentDate(c.data.curName);
+        });
+        
       }
     } catch (error) {
       console.log(error);
@@ -153,7 +157,7 @@ const CurrencyData = ({ history, match }) => {
                     </Button>
                   </div>
                 </form>
-                {mostRecentDate && <p>Last Candle: {mostRecentDate} </p>}
+                {mostRecentDate && <div style={{width: '360px', color:'red'}}>Last Candle: {mostRecentDate} ({pairRecentDate}) </div>}
               </Space>
             </>
           )}
