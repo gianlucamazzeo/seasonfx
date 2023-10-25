@@ -33,5 +33,7 @@ const currencyDataSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// Aggiungi un indice a un campo specifico
+currencyDataSchema.index({ 'candles.time': 1 }); // 1 indica un indice crescente
 
 module.exports = mongoose.model("pairs", currencyDataSchema);

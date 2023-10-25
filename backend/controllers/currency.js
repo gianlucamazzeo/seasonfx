@@ -163,15 +163,41 @@ exports.read = async (req, res) => {
 };
 
 exports.dataDay = async (req, res) => {
+  // Function to convert date string to ISO date object
+  const convertToISODateFrom = (dateString) => {
+    // Append time part to the date string
+    const isoString = `${dateString}T00:00:00Z`;
+    const dateObj = new Date(isoString);
+    // Create a new Date object
+    dateObj.setTime(dateObj.getTime() - 24 * 60 * 60 * 1000);
+    return new Date(dateObj);
+  };
+
+  const convertToISODateTo = (dateString) => {
+    // Append time part to the date string
+    const isoString = `${dateString}T23:59:59Z`;
+    const dateObj = new Date(isoString);
+    // Create a new Date object
+    dateObj.setTime(dateObj.getTime() - 24 * 60 * 60 * 1000);
+    // Create a new Date object
+    return new Date(dateObj);
+  };
+
   try {
     const { id, fromData, toData, granularity } = req.params;
-    const formattedDate = new Date(fromData).toISOString().split("T")[0]; // Converte la data in oggetto Date e ottiene la parte della data
-    console.log(formattedDate);
+
+    let startDateF = convertToISODateFrom(fromData); //new Date(formattedDate + "T00:00:00.000Z");
+    let endDateF = convertToISODateTo(toData); //new Date(formattedDate + "T23:59:59.999Z");
+
+    
+   
     const result = await Pair.aggregate([
-     
       {
         $match: {
-          "candles.time": new Date(formattedDate + "T21:00:00.000Z"),
+          "candles.time": {
+            $gte: startDateF,
+            $lt: endDateF,
+          },
         },
       },
       {
@@ -181,9 +207,9 @@ exports.dataDay = async (req, res) => {
               input: "$candles",
               as: "candle",
               cond: {
-                $eq: [
-                  "$$candle.time",
-                  new Date(formattedDate + "T21:00:00.000Z"),
+                $and: [
+                  { $gte: ["$$candle.time", startDateF] },
+                  { $lt: ["$$candle.time", endDateF] },
                 ],
               },
             },
@@ -191,12 +217,117 @@ exports.dataDay = async (req, res) => {
         },
       },
     ]).exec();
-    res.json(result)
-console.log(result)
+
+    console.log("result", result[0].candles[0])
+    // Extract the first candle object from the response
+    const firstCandle = result[0].candles[0];
+    /// update candles
+
+    const addDays = (date, days) => {
+      const newDate = new Date(date);
+      newDate.setDate(newDate.getDate() + days);
+      return newDate;
+    };
+    const newObjectId = new mongoose.Types.ObjectId();
+
+    // Modify the 'time' field to make it 3 days later
+    let newtimeMore3 = addDays(new Date(firstCandle.time), 3);
+    let newtimeMore2 = addDays(new Date(firstCandle.time), 2);
+ //   let newtimeMore1 = addDays(new Date(firstCandle.time), 1);
+
+    const newCandle3 = {
+      complete: firstCandle.complete,
+      volume: firstCandle.volume,
+      time: newtimeMore3,
+      ask: {
+        o: firstCandle.ask.o,
+        h: firstCandle.ask.h,
+        l: firstCandle.ask.l,
+        c: firstCandle.ask.c,
+      },
+      _id: newObjectId,
+    };
+    
+    const newCandle2 = {
+      complete: firstCandle.complete,
+      volume: firstCandle.volume,
+      time: newtimeMore2,
+      ask: {
+        o: firstCandle.ask.o,
+        h: firstCandle.ask.h,
+        l: firstCandle.ask.l,
+        c: firstCandle.ask.c,
+      },
+      _id: newObjectId,
+    };
+    /*
+    const newCandle1 = {
+      complete: firstCandle.complete,
+      volume: firstCandle.volume,
+      time: newtimeMore1,
+      ask: {
+        o: firstCandle.ask.o,
+        h: firstCandle.ask.h,
+        l: firstCandle.ask.l,
+        c: firstCandle.ask.c,
+      },
+      _id: newObjectId,
+    };
+*/
+    const newCandles = [newCandle2,  newCandle3];
+
+ //   console.log(JSON.stringify(newCandle, null, 2));
+    // Convert the Date object to YYYY-MM-DD format
+    const formatDate = (date) => {
+      const d = new Date(date);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+   
+
+    // Check if a candle with the same time already exists
+    newCandles.forEach((newCandle) => {
+    //  console.log(newCandle)
+    Pair.findOne({ "candles.time": formatDate(newCandle.time) })
+      .then((existingCandle) => {
+
+        
+      //  console.log("existingCandle", formatDate(newCandle.time), newCandle)
+
+        if (!existingCandle) {
+          // If the candle does not exist, perform the updateOne operation
+          
+          Pair.updateOne(
+            { _id: id },
+            { $push: { candles: newCandle } }
+          )
+            .then(() => {
+              console.log("New candle added successfully." + newCandle.time);
+            })
+            .catch((err) => {
+              console.error("Error:", err);
+            });
+            
+        } else {
+          console.log("Candle with the same time already exists.");
+        }
+        
+      })
+      .catch((err) => {
+        console.error("Error:", err);
+      });
+
+    ///
+   
+  })
     // Fai qualcosa con l'array "candles" risultante
   } catch (error) {
     console.log(error);
   }
+  
 
   //let getDataDay = await
 };
@@ -230,7 +361,7 @@ exports.readSingleData = async (req, res) => {
     const formatDate = fromData.substring(0, 4);
     const formattedDate = new Date(formatDate); // Converte la data in oggetto Date
 
-    const result = await Pair.aggregate([
+    const result =  Pair.aggregate([
       {
         $match: {
           "candles.time": formattedDate,

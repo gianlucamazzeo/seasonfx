@@ -33,7 +33,6 @@ const CurrencyData = ({ history, match }) => {
   const changePicker = (date, dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
-    console.log(date, dateString);
   };
 
   useEffect(() => {

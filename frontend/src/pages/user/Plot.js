@@ -31,12 +31,14 @@ const Plot = ({ history, match }) => {
       <Graph
         loading={loading}
         dataCandles={dataCandles}
-        dataIndex={dataIndex}
+        setDataCandles={setDataCandles}
         dataCurId={selectedPair}
         selectedPair={selectedPair}
+        fromDate={fromDate}
+        toDate={toDate}
       />
     ),
-    [dataCandles, loading, dataIndex, selectedPair]
+    [dataCandles, loading, selectedPair, fromDate, toDate]
   );
 
   const handleChange = useCallback((value) => {

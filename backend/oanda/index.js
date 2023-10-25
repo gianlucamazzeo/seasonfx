@@ -10,6 +10,8 @@ exports.getDataByOanda = async (params) => {
     `${apiOandaUrl}/${endpoint}/${pair}/candles?price=A&from=${fromData}&to=${toData}&granularity=${granularity}`
   );
   const newUrl = endpoint && endpoint === "instruments" ? myURL : `${apiOandaUrl}/${endpoint}`;
+
+  
   
   try {
     const responseData = await fetch(`${newUrl}`, {

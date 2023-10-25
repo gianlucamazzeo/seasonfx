@@ -37,7 +37,7 @@ router.post('/oanda/update',  authCheck, adminCheck,  asyncHandler(async (req, r
         // EUR_USD/candles?price=A&from=2022-06-01&to=2022-06-30&granularity=D
         const data = req.body  
     //    const response = await updateDataByOanda(data);
-        console.log(response)
+     //   console.log(response)
         res.status(200).send(data);
 
     } catch (error) {
