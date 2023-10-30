@@ -19,43 +19,11 @@ exports.readLocal = async (req, res) => {
   try {
     const { id, fromData, toData, granularity } = req.params;
     let from7YearAgo = fromData.substring(0, 4) - 7;
-    let from6YearAgo = fromData.substring(0, 4) - 6;
-    let from5YearAgo = fromData.substring(0, 4) - 5;
-    let from4YearAgo = fromData.substring(0, 4) - 4;
-    let from3YearAgo = fromData.substring(0, 4) - 3;
-    let from2YearAgo = fromData.substring(0, 4) - 2;
-    let from1YearAgo = fromData.substring(0, 4) - 1;
-
     let newFromData7 = from7YearAgo + "-" + fromData.substring(5, 10);
-    let newFromData6 = from6YearAgo + "-" + fromData.substring(5, 10);
-    let newFromData5 = from5YearAgo + "-" + fromData.substring(5, 10);
-    let newFromData4 = from4YearAgo + "-" + fromData.substring(5, 10);
-    let newFromData3 = from3YearAgo + "-" + fromData.substring(5, 10);
-    let newFromData2 = from2YearAgo + "-" + fromData.substring(5, 10);
-    let newFromData1 = from1YearAgo + "-" + fromData.substring(5, 10);
 
-    let to7YearAgo = toData.substring(0, 4) - 7;
-    let to6YearAgo = toData.substring(0, 4) - 6;
-    let to5YearAgo = toData.substring(0, 4) - 5;
-    let to4YearAgo = toData.substring(0, 4) - 4;
-    let to3YearAgo = toData.substring(0, 4) - 3;
-    let to2YearAgo = toData.substring(0, 4) - 2;
     let to1YearAgo = toData.substring(0, 4) - 1;
-    let toYearAgo = toData.substring(0, 4);
-
-    let newToData0 = toYearAgo + "-" + toData.substring(5, 10);
     let newToData1 = to1YearAgo + "-" + toData.substring(5, 10);
-    let newToData2 = to2YearAgo + "-" + toData.substring(5, 10);
-    let newToData3 = to3YearAgo + "-" + toData.substring(5, 10);
-    let newToData4 = to4YearAgo + "-" + toData.substring(5, 10);
-    let newToData5 = to5YearAgo + "-" + toData.substring(5, 10);
-    let newToData6 = to6YearAgo + "-" + toData.substring(5, 10);
-    let newToData7 = to7YearAgo + "-" + toData.substring(5, 10);
 
-    //   let dataResponse = await Pair.findById(id).exec();
-
-    //    console.log(new Date(newFromData7 + "T22:00:00.000Z"));
-    //    console.log(new Date(newToData7 + "T22:00:00.000Z"));
 
     let dataRes = Pair.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(id) } },
@@ -64,8 +32,8 @@ exports.readLocal = async (req, res) => {
           candles: {
             $elemMatch: {
               time: {
-                $gte: new Date(newFromData7 + "T22:00:00.000Z"),
-                $lt: new Date(newToData1 + "T22:00:00.000Z"),
+                $gte: new Date(newFromData7 + "T00:00:00.000Z"),
+                $lt: new Date(newToData1 + "T23:59:59.000Z"),
               },
             },
           },
@@ -75,8 +43,8 @@ exports.readLocal = async (req, res) => {
       {
         $match: {
           "candles.time": {
-            $gte: new Date(newFromData7 + "T22:00:00.000Z"),
-            $lt: new Date(newToData1 + "T22:00:00.000Z"),
+            $gte: new Date(newFromData7 + "T00:00:00.000Z"),
+            $lt: new Date(newToData1 + "T23:59:59.000Z"),
           },
         },
       },
@@ -84,61 +52,27 @@ exports.readLocal = async (req, res) => {
       { $project: { _id: "$_id._id", candles: 1 } },
     ]).exec((err, list) => {
       if (err) throw err;
-      const data3splitFrom = newFromData3.split("-");
-      const data1splitTo = newToData1.split("-");
-      const data5splitFrom = newFromData5.split("-");
-      const data7splitFrom = newFromData7.split("-");
 
-      const media3Period = list[0].candles.filter((obj) => {
-        const date = new Date(obj.time);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1; // i mesi in JS partono da 0 (gennaio) e finiscono a 11 (dicembre)
-        const day = date.getDate();
-        const yearFrom = parseInt(data3splitFrom[0]);
-        const yearTo = parseInt(data1splitTo[0]);
-        const monthFrom = parseInt(data3splitFrom[1], 10);
-        const monthTo = parseInt(data1splitTo[1], 10);
-        const dayFrom = parseInt(data3splitFrom[2], 10);
-        const dayTo = parseInt(data1splitTo[2], 10);
+      const lastYear = new Date().getFullYear() - 1; // Anno scorso
+      const threeYearsAgo = lastYear - 2; // Tre anni fa
 
-        return (
-          year >= yearFrom &&
-          year <= yearTo &&
-          month >= monthFrom &&
-          month <= monthTo &&
-          day >= dayFrom &&
-          day <= dayTo
-        );
+      const media3Period = list[0].candles.filter((candle) => {
+        const candleYear = new Date(candle.time).getFullYear();
+        return candleYear >= threeYearsAgo && candleYear <= lastYear;
       });
 
-      let media5Period = list[0].candles.filter((obj) => {
-        const date = new Date(obj.time);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1; // i mesi in JS partono da 0 (gennaio) e finiscono a 11 (dicembre)
-        const day = date.getDate();
-        return (
-          year >= data5splitFrom[0] &&
-          year <= data1splitTo[0] &&
-          month >= parseInt(data5splitFrom[1], 10) &&
-          month <= parseInt(data1splitTo[1], 10) &&
-          day >= parseInt(data5splitFrom[2], 10) &&
-          day <= parseInt(data1splitTo[2], 10)
-        );
+      const fiveYearsAgo = lastYear - 5; // Cinque anni fa
+
+      const media5Period = list[0].candles.filter((candle) => {
+        const candleYear = new Date(candle.time).getFullYear();
+        return candleYear >= fiveYearsAgo && candleYear <= lastYear;
       });
 
-      let media7Period = list[0].candles.filter((obj) => {
-        const date = new Date(obj.time);
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1; // i mesi in JS partono da 0 (gennaio) e finiscono a 11 (dicembre)
-        const day = date.getDate();
-        return (
-          year >= data7splitFrom[0] &&
-          year <= data1splitTo[0] &&
-          month >= parseInt(data7splitFrom[1], 10) &&
-          month <= parseInt(data1splitTo[1], 10) &&
-          day >= parseInt(data7splitFrom[2], 10) &&
-          day <= parseInt(data1splitTo[1], 10)
-        );
+      const sevenYearsAgo = lastYear - 7; // Sette anni fa
+
+      const media7Period = list[0].candles.filter((candle) => {
+        const candleYear = new Date(candle.time).getFullYear();
+        return candleYear >= sevenYearsAgo && candleYear <= lastYear;
       });
 
       let r = {
@@ -189,8 +123,6 @@ exports.dataDay = async (req, res) => {
     let startDateF = convertToISODateFrom(fromData); //new Date(formattedDate + "T00:00:00.000Z");
     let endDateF = convertToISODateTo(toData); //new Date(formattedDate + "T23:59:59.999Z");
 
-    
-   
     const result = await Pair.aggregate([
       {
         $match: {
@@ -218,11 +150,11 @@ exports.dataDay = async (req, res) => {
       },
     ]).exec();
 
-    console.log("result", result[0].candles[0])
     // Extract the first candle object from the response
     const firstCandle = result[0].candles[0];
     /// update candles
 
+    /*
     const addDays = (date, days) => {
       const newDate = new Date(date);
       newDate.setDate(newDate.getDate() + days);
@@ -260,6 +192,7 @@ exports.dataDay = async (req, res) => {
       },
       _id: newObjectId,
     };
+    */
     /*
     const newCandle1 = {
       complete: firstCandle.complete,
@@ -274,9 +207,9 @@ exports.dataDay = async (req, res) => {
       _id: newObjectId,
     };
 */
-    const newCandles = [newCandle2,  newCandle3];
+    //    const newCandles = [newCandle2,  newCandle3];
 
- //   console.log(JSON.stringify(newCandle, null, 2));
+    //   console.log(JSON.stringify(newCandle, null, 2));
     // Convert the Date object to YYYY-MM-DD format
     const formatDate = (date) => {
       const d = new Date(date);
@@ -286,9 +219,8 @@ exports.dataDay = async (req, res) => {
       return `${year}-${month}-${day}`;
     };
 
-   
-
     // Check if a candle with the same time already exists
+    /*
     newCandles.forEach((newCandle) => {
     //  console.log(newCandle)
     Pair.findOne({ "candles.time": formatDate(newCandle.time) })
@@ -323,11 +255,11 @@ exports.dataDay = async (req, res) => {
     ///
    
   })
+  */
     // Fai qualcosa con l'array "candles" risultante
   } catch (error) {
     console.log(error);
   }
-  
 
   //let getDataDay = await
 };
@@ -361,7 +293,7 @@ exports.readSingleData = async (req, res) => {
     const formatDate = fromData.substring(0, 4);
     const formattedDate = new Date(formatDate); // Converte la data in oggetto Date
 
-    const result =  Pair.aggregate([
+    const result = Pair.aggregate([
       {
         $match: {
           "candles.time": formattedDate,

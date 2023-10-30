@@ -71,6 +71,10 @@ const Plot = ({ history, match }) => {
 
         getLocalDataCurrency(ObjectDataPost, user.token)
           .then((res) => {
+
+
+            console.log(res.data)
+            /*
             const monthPostFrom = ObjectDataPost.fromData.substring(5, 7);
             const monthPostTo = ObjectDataPost.toData.substring(5, 7);
             const enMonthPostFrom = monthPostFrom.replace(/^0+/, "") - 1;
@@ -108,7 +112,7 @@ const Plot = ({ history, match }) => {
             });
 
             dataIndex.push(newDateArrayIndex);
-
+            */
             setDataCandles({ ...res.data });
 
             setLoadings((prevLoadings) => {
@@ -127,7 +131,7 @@ const Plot = ({ history, match }) => {
         setDataIndex(dataIndex);
       }
     },
-    [currentYear, fromDate, toDate, user.token, selectedPair]
+    [fromDate, toDate, user.token, selectedPair]
   );
 
 
