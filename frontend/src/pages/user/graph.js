@@ -20,6 +20,8 @@ const Graph = (props) => {
   const [getUser, setGetUser] = useState(user);
   const [x, setX] = useState([]);
   const [y, setY] = useState([]);
+  const [x2, setX2] = useState([]);
+  const [y2, setY2] = useState([]);
   const [x5, setX5] = useState([]);
   const [y5, setY5] = useState([]);
   const [x7, setX7] = useState([]);
@@ -31,6 +33,7 @@ const Graph = (props) => {
 
     const dataBegin = new Date(fromDate);
     const dataEnd = new Date(toDate);
+    const media2anni = [];
     const media3anni = [];
     const media5anni = [];
     const media7anni = [];
@@ -46,7 +49,9 @@ const Graph = (props) => {
     ) {
       const day = currentDate.getDate().toString().padStart(2, "0");
       const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+      const year = currentDate.getFullYear();
       const dateKey = `${month}-${day}`;
+      media2anni.push(dateKey);
       media3anni.push(dateKey);
       media5anni.push(dateKey);
       media7anni.push(dateKey);
@@ -55,16 +60,36 @@ const Graph = (props) => {
      // console.log(media3anni);
 
     // Creo un oggetto per tenere traccia delle somme temporanee per ogni giorno.
+    const sums2 = {};
     const sums3 = {};
     const sums5 = {};
     const sums7 = {};
+    const totSum2 = [];
     const totSum3 = [];
     const totSum5 = [];
     const totSum7 = [];
     const totDate = [];
 
+    media2anni.forEach((dateKey,i) => {
+      let currentDate = dataBegin;
+      currentDate.setDate(currentDate.getDate() + 1);
+      const year = currentDate.getFullYear();
+      const dateThisYear = `${year}-${dateKey}`;
+      console.log(`${year}-${dateKey}`);
+      sums2[dateKey] = {
+        sum: 0,
+        count: 0,
+        day: dateKey,
+      };
+      totDate.push(i+1);
+    });
    
     media3anni.forEach((dateKey,i) => {
+      let currentDate = dataBegin;
+      currentDate.setDate(currentDate.getDate() + 1);
+      const year = currentDate.getFullYear();
+      const dateThisYear = `${year}-${dateKey}`;
+      console.log(`${year}-${dateKey}`);
       sums3[dateKey] = {
         sum: 0,
         count: 0,
@@ -74,6 +99,11 @@ const Graph = (props) => {
     });
 
     media5anni.forEach((dateKey,i) => {
+      let currentDate = dataBegin;
+      currentDate.setDate(currentDate.getDate() + 1);
+      const year = currentDate.getFullYear();
+      const dateThisYear = `${year}-${dateKey}`;
+      console.log(`${year}-${dateKey}`);
       sums5[dateKey] = {
         sum: 0,
         count: 0,
@@ -83,6 +113,11 @@ const Graph = (props) => {
     });
 
     media7anni.forEach((dateKey,i) => {
+      let currentDate = dataBegin;
+      currentDate.setDate(currentDate.getDate() + 1);
+      const year = currentDate.getFullYear();
+      const dateThisYear = `${year}-${dateKey}`;
+      console.log(`${year}-${dateKey}`);
       sums7[dateKey] = {
         sum: 0,
         count: 0,
@@ -125,18 +160,37 @@ const Graph = (props) => {
       }
     });
 
+    dataCandles?.media2?.forEach((item) => {
+      const time = item.time.split("T")[0];
+      const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
+      if (sums2[dateKey]) {
+        const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
+        sums2[dateKey].sum += closePrice;
+        sums2[dateKey].count++;
+        sums2[dateKey].day = dateKey;
+      }
+    });
+
+    for (const dateKey in sums2) {
+      if (sums2[dateKey].count > 0) {
+        sums2[dateKey].average = parseFloat(sums2[dateKey].sum / sums2[dateKey].count);
+        sums2[dateKey].average = parseFloat(sums2[dateKey].average.toFixed(5));
+        totSum2.push(Math.log(sums2[dateKey].average));
+      }
+    }
+
     for (const dateKey in sums3) {
       if (sums3[dateKey].count > 0) {
         sums3[dateKey].average = parseFloat(sums3[dateKey].sum / sums3[dateKey].count);
         sums3[dateKey].average = parseFloat(sums3[dateKey].average.toFixed(5));
-        totSum3.push(sums3[dateKey].average);
+        totSum3.push(Math.log(sums3[dateKey].average));
       }
     }
     for (const dateKey5 in sums5) {
       if (sums5[dateKey5].count > 0) {
         sums5[dateKey5].average = parseFloat(sums5[dateKey5].sum / sums5[dateKey5].count);
         sums5[dateKey5].average = parseFloat(sums5[dateKey5].average.toFixed(5));
-        totSum5.push(sums5[dateKey5].average);
+        totSum5.push(Math.log(sums5[dateKey5].average));
       }
     }
 
@@ -144,7 +198,7 @@ const Graph = (props) => {
       if (sums7[dateKey7].count > 0) {
         sums7[dateKey7].average = parseFloat(sums7[dateKey7].sum / sums7[dateKey7].count);
         sums7[dateKey7].average = parseFloat(sums7[dateKey7].average.toFixed(5));
-        totSum7.push(sums7[dateKey7].average);
+        totSum7.push(Math.log(sums7[dateKey7].average));
       }
     }
     //const xValues = sums3[dateKey].map((item) => item);
@@ -152,6 +206,8 @@ const Graph = (props) => {
    //const keysArray = Object.keys(sums3);
     setX(totDate);
     setY(totSum3);
+    setX2(totDate);
+    setY2(totSum2);
     setX5(totDate);
     setY5(totSum5);
     setX7(totDate);
@@ -196,14 +252,23 @@ const Graph = (props) => {
   const data = [
     {
       x: x,
+      y: y2,
+      type: 'scatter',
+      mode: 'lines+markers',
+      marker: { color: 'yellow' },
+      name: '2 years'
+    },
+    {
+      x: x,
       y: y,
       type: 'scatter',
       mode: 'lines+markers',
       marker: { color: 'blue' },
       name: '3 years'
     },
+    
     {
-      x: x5,
+      x: x,
       y: y5,
       type: 'scatter',
       mode: 'lines+markers',
@@ -211,7 +276,7 @@ const Graph = (props) => {
       name: '5 years'
     },
     {
-      x: x7,
+      x: x,
       y: y7,
       type: 'scatter',
       mode: 'lines+markers',

@@ -18,7 +18,7 @@ exports.create = async (req, res) => {
 exports.readLocal = async (req, res) => {
   try {
     const { id, fromData, toData, granularity } = req.params;
-    let from7YearAgo = fromData.substring(0, 4) - 7;
+    let from7YearAgo = fromData.substring(0, 4) - 8;
     let newFromData7 = from7YearAgo + "-" + fromData.substring(5, 10);
 
     let to1YearAgo = toData.substring(0, 4) - 1;
@@ -54,28 +54,34 @@ exports.readLocal = async (req, res) => {
       if (err) throw err;
 
       const lastYear = new Date().getFullYear() - 1; // Anno scorso
-      const threeYearsAgo = lastYear - 2; // Tre anni fa
 
+      const twoYearsAgo = lastYear - 1; // due anni fa
+      const media2Period = list[0].candles.filter((candle) => {
+        const candleYear = new Date(candle.time).getFullYear();
+        return candleYear >= twoYearsAgo && candleYear <= lastYear;
+      });
+
+
+      const threeYearsAgo = lastYear - 2; // Tre anni fa
       const media3Period = list[0].candles.filter((candle) => {
         const candleYear = new Date(candle.time).getFullYear();
         return candleYear >= threeYearsAgo && candleYear <= lastYear;
       });
 
-      const fiveYearsAgo = lastYear - 5; // Cinque anni fa
-
+      const fiveYearsAgo = lastYear - 4; // Cinque anni fa
       const media5Period = list[0].candles.filter((candle) => {
         const candleYear = new Date(candle.time).getFullYear();
         return candleYear >= fiveYearsAgo && candleYear <= lastYear;
       });
 
-      const sevenYearsAgo = lastYear - 7; // Sette anni fa
-
+      const sevenYearsAgo = lastYear - 6; // Sette anni fa
       const media7Period = list[0].candles.filter((candle) => {
         const candleYear = new Date(candle.time).getFullYear();
         return candleYear >= sevenYearsAgo && candleYear <= lastYear;
       });
 
       let r = {
+        media2: media2Period,
         media3: media3Period,
         media5: media5Period,
         media7: media7Period,
