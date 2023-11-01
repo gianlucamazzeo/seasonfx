@@ -24,7 +24,6 @@ exports.readLocal = async (req, res) => {
     let to1YearAgo = toData.substring(0, 4) - 1;
     let newToData1 = to1YearAgo + "-" + toData.substring(5, 10);
 
-
     let dataRes = Pair.aggregate([
       { $match: { _id: mongoose.Types.ObjectId(id) } },
       {
@@ -93,6 +92,59 @@ exports.readLocal = async (req, res) => {
     res.status(400).send("Get dataPair failed");
   }
 };
+
+exports.readCurrentLocal = async (req, res) => {
+  const { id, fromData, toData, granularity } = req.params;
+  let fromYearAgo = fromData.substring(0, 4);
+  let newFromData = fromYearAgo + "-" + fromData.substring(5, 10);
+  let toYear = toData.substring(0, 4);
+  let newToData = toYear + "-" + toData.substring(5, 10);
+
+  console.log(newFromData, newToData)
+
+  let dataRes = Pair.aggregate([
+    { $match: { _id: mongoose.Types.ObjectId(id) } },
+    {
+      $match: {
+        candles: {
+          $elemMatch: {
+            time: {
+              $gte: new Date(newFromData + "T00:00:00.000Z"),
+              $lt: new Date(newToData + "T23:59:59.000Z"),
+            },
+          },
+        },
+      },
+    },
+    { $unwind: "$candles" },
+    {
+      $match: {
+        "candles.time": {
+          $gte: new Date(newFromData + "T00:00:00.000Z"),
+          $lt: new Date(newToData + "T23:59:59.000Z"),
+        },
+      },
+    },
+    { $group: { _id: { _id: "$_id" }, candles: { $push: "$candles" } } },
+    { $project: { _id: "$_id._id", candles: 1 } },
+  ]).exec((err, list) => {
+    if (err) throw err;
+
+    const Year = new Date().getFullYear(); // Anno 
+
+    
+    const mediaPeriod = list[0].candles.filter((candle) => {
+      const candleYear = new Date(candle.time).getFullYear();
+      return candleYear >= Year && candleYear <= Year;
+    });
+
+    let r = {
+      media: mediaPeriod
+    };
+    res.json(r);
+  })
+
+}
 
 exports.list = async (req, res) =>
   res.json(await Currency.find({}).sort({ createdAt: -1 }).exec());

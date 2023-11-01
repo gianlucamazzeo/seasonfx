@@ -14,14 +14,23 @@ export const getLocalDataCurrency = async ({id,fromData,toData,granularity}, aut
     headers: {
       authtoken,
     },
-  })
+  });
 
+  export const getLocalCurrentDataCurrency = async ({id,fromData,toData,granularity}, authtoken) => 
+  await axios.get(`${process.env.REACT_APP_API}/currency-current-local/${id}/${fromData}/${toData}/${granularity}`,{
+    headers: {
+      authtoken,
+    },
+  });
+
+  /*
 export const getMostRecentDate = async (authtoken) =>
 await axios.get(`${process.env.REACT_APP_API}/mostRecentDate`, {
   headers: {
     authtoken
   }
 });
+*/
 
 
 

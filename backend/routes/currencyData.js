@@ -12,7 +12,6 @@ router.post("/currencyData", authCheck, adminCheck, create);
 
 router.get("/currencyDataPair", authCheck, all);
 
-router.get("/mostRecentDate", authCheck,  adminCheck,  getMostRecentDate);
 
 // router.get("/pair/:currency", listAll);
 

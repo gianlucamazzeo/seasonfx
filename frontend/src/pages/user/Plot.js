@@ -3,7 +3,11 @@ import UserNav from "../../components/nav/UserNav";
 import { Button, message, Space, Select, DatePicker } from "antd";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { getCurrencies, getLocalDataCurrency } from "../../functions/currency";
+import {
+  getCurrencies,
+  getLocalDataCurrency,
+  getLocalCurrentDataCurrency,
+} from "../../functions/currency";
 import { getDateArray, formatDate } from "../utils/util";
 import Graph from "./graph";
 
@@ -17,9 +21,11 @@ const Plot = ({ history, match }) => {
   const [loading, setLoading] = useState(false);
   const [currencies, setCurrencies] = useState([]);
   const [selectedPair, setSelectedPair] = useState([]);
+  const [selectedNamePair, setSelectedNamePair] = useState([]);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [dataCandles, setDataCandles] = useState({});
+  const [dataCurrentCandles, setDataCurrentCandles] = useState({});
   const [lastDateYear, setLastDateYear] = useState([]);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [january, setJanuary] = useState(0);
@@ -32,16 +38,20 @@ const Plot = ({ history, match }) => {
         loading={loading}
         dataCandles={dataCandles}
         setDataCandles={setDataCandles}
+        dataCurrentCandles={dataCurrentCandles}
+        setDataCurrentCandles={setDataCurrentCandles}
         dataCurId={selectedPair}
         selectedPair={selectedPair}
         fromDate={fromDate}
         toDate={toDate}
+        selectedNamePair={selectedNamePair}
       />
     ),
-    [dataCandles, loading, selectedPair, fromDate, toDate]
+    [dataCandles, loading, selectedPair, fromDate, toDate, selectedNamePair]
   );
 
-  const handleChange = useCallback((value) => {
+  const handleChange = useCallback((value, option) => {
+    setSelectedNamePair(option.props.children);
     setSelectedPair(value);
   }, []);
 
@@ -71,48 +81,6 @@ const Plot = ({ history, match }) => {
 
         getLocalDataCurrency(ObjectDataPost, user.token)
           .then((res) => {
-
-
-            console.log(res.data)
-            /*
-            const monthPostFrom = ObjectDataPost.fromData.substring(5, 7);
-            const monthPostTo = ObjectDataPost.toData.substring(5, 7);
-            const enMonthPostFrom = monthPostFrom.replace(/^0+/, "") - 1;
-            const enMonthPostTo = monthPostTo.replace(/^0+/, "") - 1;
-            const endMonthTo = ObjectDataPost.toData.substring(8, 10);
-
-            const firstDay = new Date(currentYear, enMonthPostFrom, 1);
-            const lastDay = new Date(currentYear, enMonthPostTo, endMonthTo);
-            const dateArray = getDateArray(firstDay, lastDay);
-
-            let newDateArrayIndex = dateArray.map((el) => {
-              var year = el.getFullYear();
-              var month = el.getMonth();
-              var day = el.getDate();
-              let period7yearsAgoTimestamp = new Date(year - 7, month, day);
-              let period6yearsAgoTimestamp = new Date(year - 6, month, day);
-              let period5yearsAgoTimestamp = new Date(year - 5, month, day);
-              let period4yearsAgoTimestamp = new Date(year - 4, month, day);
-              let period3yearsAgoTimestamp = new Date(year - 3, month, day);
-              let period2yearsAgoTimestamp = new Date(year - 2, month, day);
-              let period1yearsAgoTimestamp = new Date(year - 1, month, day);
-              //  const filteredResult = jsObject.find((e) => e.b == 6);
-              let timestampDate = {
-                firstY: formatDate(period1yearsAgoTimestamp),
-                secondY: formatDate(period2yearsAgoTimestamp),
-                thirdY: formatDate(period3yearsAgoTimestamp),
-                fourth: formatDate(period4yearsAgoTimestamp),
-                fiveth: formatDate(period5yearsAgoTimestamp),
-                sixth: formatDate(period6yearsAgoTimestamp),
-                seventh: formatDate(period7yearsAgoTimestamp),
-              }; //  ['Work', 9]
-              //mapPeriodLastYear.push(timestampDate);
-
-              return timestampDate;
-            });
-
-            dataIndex.push(newDateArrayIndex);
-            */
             setDataCandles({ ...res.data });
 
             setLoadings((prevLoadings) => {
@@ -127,14 +95,28 @@ const Plot = ({ history, match }) => {
             setLoading(false);
             if (err.response.status === 400) toast.error(err.response.data);
           });
+        getLocalCurrentDataCurrency(ObjectDataPost, user.token)
+          .then((res) => {
+            setDataCurrentCandles({ ...res.data });
+
+            setLoadings((prevLoadings) => {
+              const newLoadings = [...prevLoadings];
+              newLoadings[0] = false;
+              message.info(`Data get Current`);
+              return newLoadings;
+            });
+          })
+          .catch((err) => {
+            console.log(err);
+            setLoading(false);
+            if (err.response.status === 400) toast.error(err.response.data);
+          });
 
         setDataIndex(dataIndex);
       }
     },
     [fromDate, toDate, user.token, selectedPair]
   );
-
-
 
   useEffect(() => {
     const currentYear = new Date().getFullYear();

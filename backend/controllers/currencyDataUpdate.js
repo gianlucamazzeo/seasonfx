@@ -239,6 +239,7 @@ exports.all = async (req, res) =>
   );
 
 //  trova il candles.time più recente
+/*
 exports.getMostRecentDate = async (req, res) => {
   try {
     const result = await CurrencyDataSet.aggregate([
@@ -278,3 +279,4 @@ exports.getMostRecentDate = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+*/

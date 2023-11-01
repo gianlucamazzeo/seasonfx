@@ -5,8 +5,7 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import {
   getCurrencies,
-  updateDataCurrency,
-  getMostRecentDate,
+  updateDataCurrency
 } from "../../../functions/currency";
 import  '../../../App.css';
 
@@ -43,19 +42,6 @@ const CurrencyData = ({ history, match }) => {
     }
   }, []);
 
-  useEffect(() => {
-    try {
-      if (user.token) {
-        getMostRecentDate(user.token).then((c) => {
-          setMostRecentDate(c.data.mostRecentDate);
-          setPairRecentDate(c.data.curName);
-        });
-        
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [user.token]);
 
   // console.log(currencies);
 
@@ -84,9 +70,11 @@ const CurrencyData = ({ history, match }) => {
             message.info(`Data Update:  `);
             return newLoadings;
           });
+          /*
           getMostRecentDate(user.token).then((c) =>
           setMostRecentDate(c.data.mostRecentDate)
         );
+        */
         })
         .catch((err) => {
           console.log(err);
@@ -156,7 +144,7 @@ const CurrencyData = ({ history, match }) => {
                     </Button>
                   </div>
                 </form>
-                {mostRecentDate && <div style={{width: '360px', color:'red'}}>Last Candle: {mostRecentDate} ({pairRecentDate}) </div>}
+               
               </Space>
             </>
           )}
