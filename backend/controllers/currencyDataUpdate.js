@@ -206,21 +206,25 @@ exports.create = async (req, res) => {
       res.status(200).send(JSON.stringify(eleCur));
     } else {
       if (periodCandles.length > 0) {
-        periodCandles.map((e) => {
-          CurrencyDataSet.updateOne(
-            { _id: currencyPair._id, "candles.time": { $ne: e.time } },
-            { $push: { candles: periodCandles } },
-            function (err, result) {
-              if (err) {
-                //  res.send(err);
-              } else {
-              }
-            }
-          );
-        });
+        const bulkOps = periodCandles.map(e => ({
+          updateOne: {
+            filter: { _id: currencyPair._id, "candles.time": { $ne: e.time } },
+            update: { $push: { candles: e } }
+          }
+        }));
+      
+        CurrencyDataSet.bulkWrite(bulkOps)
+          .then(result => {
+            res.send(periodCandles);
+          })
+          .catch(err => {
+            console.error("Errore durante l'aggiornamento:", err);
+            res.status(500).send(err);
+          });
+        
       }
 
-      res.send(periodCandles);
+     // res.send(periodCandles);
     }
   } catch (err) {
     console.log(err);

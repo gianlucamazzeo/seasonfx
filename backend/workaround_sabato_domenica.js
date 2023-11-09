@@ -1,6 +1,6 @@
 const moment = require('moment');
 const Pair = require('./models/currencyDataSet');
-const ObjectId = require('mongodb').ObjectId; // Assumi che Pair sia il modello Mongoose per la tua collection
+const { Decimal128, ObjectId } = require('mongodb');// Assumi che Pair sia il modello Mongoose per la tua collection
 
   // Imposta la tua data di fine
 

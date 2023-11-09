@@ -47,7 +47,7 @@ const Plot = ({ history, match }) => {
         selectedNamePair={selectedNamePair}
       />
     ),
-    [dataCandles, loading, selectedPair, fromDate, toDate, selectedNamePair]
+    [dataCandles, loading, selectedPair, fromDate, toDate, selectedNamePair, dataCurrentCandles]
   );
 
   const handleChange = useCallback((value, option) => {
@@ -153,7 +153,7 @@ const Plot = ({ history, match }) => {
 
   const pairs = () => {
     const menu = [];
-    // console.log(currencies);
+     console.log(currencies);
     currencies.map((e, i) =>
       menu.push(
         <Option key={i} value={e._id}>

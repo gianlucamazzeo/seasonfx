@@ -3,11 +3,8 @@ import { Button, message, Space, Select, DatePicker } from "antd";
 import AdminNav from "../../../components/nav/AdminNav";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import {
-  getCurrencies,
-  updateDataCurrency
-} from "../../../functions/currency";
-import  '../../../App.css';
+import { getCurrencies, updateDataCurrency } from "../../../functions/currency";
+import "../../../App.css";
 
 const { RangePicker } = DatePicker;
 
@@ -22,7 +19,7 @@ const CurrencyData = ({ history, match }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [mostRecentDate, setMostRecentDate] = useState("");
-  const [pairRecentDate, setPairRecentDate] = useState(""); 
+  const [pairRecentDate, setPairRecentDate] = useState("");
 
   const handleChange = (value) => {
     setSelectedPair(value);
@@ -41,7 +38,6 @@ const CurrencyData = ({ history, match }) => {
       console.log(error);
     }
   }, []);
-
 
   // console.log(currencies);
 
@@ -144,7 +140,6 @@ const CurrencyData = ({ history, match }) => {
                     </Button>
                   </div>
                 </form>
-               
               </Space>
             </>
           )}

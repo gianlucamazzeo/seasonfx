@@ -201,7 +201,7 @@ const Graph = (props) => {
           sums[dateKey].sum / sums[dateKey].count
         );
         sums[dateKey].average = parseFloat(sums[dateKey].average.toFixed(5));
-        totSum.push(Math.log(sums[dateKey].average));
+        totSum.push(sums[dateKey].average);
       }
     }
 
@@ -211,7 +211,7 @@ const Graph = (props) => {
           sums2[dateKey].sum / sums2[dateKey].count
         );
         sums2[dateKey].average = parseFloat(sums2[dateKey].average.toFixed(5));
-        totSum2.push(Math.log(sums2[dateKey].average));
+        totSum2.push(sums2[dateKey].average);
       }
     }
 
@@ -221,7 +221,7 @@ const Graph = (props) => {
           sums3[dateKey].sum / sums3[dateKey].count
         );
         sums3[dateKey].average = parseFloat(sums3[dateKey].average.toFixed(5));
-        totSum3.push(Math.log(sums3[dateKey].average));
+        totSum3.push(sums3[dateKey].average);
       }
     }
     for (const dateKey5 in sums5) {
@@ -232,7 +232,7 @@ const Graph = (props) => {
         sums5[dateKey5].average = parseFloat(
           sums5[dateKey5].average.toFixed(5)
         );
-        totSum5.push(Math.log(sums5[dateKey5].average));
+        totSum5.push(sums5[dateKey5].average);
       }
     }
 
@@ -244,7 +244,7 @@ const Graph = (props) => {
         sums7[dateKey7].average = parseFloat(
           sums7[dateKey7].average.toFixed(5)
         );
-        totSum7.push(Math.log(sums7[dateKey7].average));
+        totSum7.push(sums7[dateKey7].average);
       }
     }
     //const xValues = sums3[dateKey].map((item) => item);

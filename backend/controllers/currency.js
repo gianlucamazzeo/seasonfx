@@ -147,7 +147,7 @@ exports.readCurrentLocal = async (req, res) => {
 }
 
 exports.list = async (req, res) =>
-  res.json(await Currency.find({}).sort({ createdAt: -1 }).exec());
+  res.json(await Currency.find({}).sort({ slug: 1 }).exec());
 
 exports.read = async (req, res) => {
   let currency = await Currency.findOne({ slug: req.params.slug }).exec();
