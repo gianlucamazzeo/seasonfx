@@ -33,234 +33,241 @@ const Graph = (props) => {
   const [y7, setY7] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false); // Aggiungi questa variabile di stato
 
-  const mediaTotal = useCallback((fromDate, toDate, dataCandles) => {
-    // La tua logica per calcolare la data di inizio per gli ultimi 3 anni// ...
+  const mediaTotal = useCallback(
+    (fromDate, toDate, dataCandles) => {
+      // La tua logica per calcolare la data di inizio per gli ultimi 3 anni// ...
 
-    const dataBegin = new Date(fromDate);
-    const dataEnd = new Date(toDate);
-    const currentPrices = [];
-    const media2anni = [];
-    const media3anni = [];
-    const media5anni = [];
-    const media7anni = [];
-    // La tua logica per calcolare la data di fine per gli ultimi 3 anni// ...
-    // creo un array contenente un indice giornomese per tutto il periodo che viene passato
-    // creo un arrauy
-    // poi creo
-    // Itera su ciascun giorno all'interno del periodo specificato.
-    for (
-      let currentDate = dataBegin;
-      currentDate <= dataEnd;
-      currentDate.setDate(currentDate.getDate() + 1)
-    ) {
-      const day = currentDate.getDate().toString().padStart(2, "0");
-      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-      const year = currentDate.getFullYear();
-      const dateKey = `${month}-${day}`;
-      media2anni.push(dateKey);
-      media3anni.push(dateKey);
-      media5anni.push(dateKey);
-      media7anni.push(dateKey);
-      currentPrices.push(dateKey);
-    }
-
-    // console.log(media3anni);
-
-    // Creo un oggetto per tenere traccia delle somme temporanee per ogni giorno.
-    const sums = {};
-    const sums2 = {};
-    const sums3 = {};
-    const sums5 = {};
-    const sums7 = {};
-    const totSum = [];
-    const totSum2 = [];
-    const totSum3 = [];
-    const totSum5 = [];
-    const totSum7 = [];
-    const totDate = [];
-
-    currentPrices.forEach((dateKey, i) => {
-      let currentDate = dataBegin;
-      currentDate.setDate(currentDate.getDate() + 1);
-      const year = currentDate.getFullYear();
-
-      sums[dateKey] = {
-        sum: 0,
-        count: 0,
-        day: dateKey,
-      };
-      totDate.push(i + 1);
-    });
-
-    media2anni.forEach((dateKey, i) => {
-      let currentDate = dataBegin;
-      currentDate.setDate(currentDate.getDate() + 1);
-      const year = currentDate.getFullYear();
-      sums2[dateKey] = {
-        sum: 0,
-        count: 0,
-        day: dateKey,
-      };
-      totDate.push(i + 1);
-    });
-
-    media3anni.forEach((dateKey, i) => {
-      let currentDate = dataBegin;
-      currentDate.setDate(currentDate.getDate() + 1);
-      const year = currentDate.getFullYear();
-      sums3[dateKey] = {
-        sum: 0,
-        count: 0,
-        day: dateKey,
-      };
-      totDate.push(i + 1);
-    });
-
-    media5anni.forEach((dateKey, i) => {
-      let currentDate = dataBegin;
-      currentDate.setDate(currentDate.getDate() + 1);
-      const year = currentDate.getFullYear();
-      sums5[dateKey] = {
-        sum: 0,
-        count: 0,
-        day: dateKey,
-      };
-      totDate.push(i + 1);
-    });
-
-    media7anni.forEach((dateKey, i) => {
-      let currentDate = dataBegin;
-      currentDate.setDate(currentDate.getDate() + 1);
-      const year = currentDate.getFullYear();
-      sums7[dateKey] = {
-        sum: 0,
-        count: 0,
-        day: dateKey,
-      };
-      totDate.push(i + 1);
-    });
-
-    dataCandles?.media5?.forEach((item5) => {
-      const time5 = item5.time.split("T")[0];
-      const dateKey5 = time5.substr(5, 5); // Estrai MM-DD dalla data
-      if (sums5[dateKey5]) {
-        const closePrice5 = parseFloat(item5.ask.c["$numberDecimal"]);
-        sums5[dateKey5].sum += closePrice5;
-        sums5[dateKey5].count++;
-        sums5[dateKey5].day = dateKey5;
+      const dataBegin = new Date(fromDate);
+      const dataEnd = new Date(toDate);
+      const currentPrices = [];
+      const media2anni = [];
+      const media3anni = [];
+      const media5anni = [];
+      const media7anni = [];
+      // La tua logica per calcolare la data di fine per gli ultimi 3 anni// ...
+      // creo un array contenente un indice giornomese per tutto il periodo che viene passato
+      // creo un arrauy
+      // poi creo
+      // Itera su ciascun giorno all'interno del periodo specificato.
+      for (
+        let currentDate = dataBegin;
+        currentDate <= dataEnd;
+        currentDate.setDate(currentDate.getDate() + 1)
+      ) {
+        const day = currentDate.getDate().toString().padStart(2, "0");
+        const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
+        const year = currentDate.getFullYear();
+        const dateKey = `${month}-${day}`;
+        media2anni.push(dateKey);
+        media3anni.push(dateKey);
+        media5anni.push(dateKey);
+        media7anni.push(dateKey);
+        currentPrices.push(dateKey);
       }
-    });
 
-    dataCandles?.media7?.forEach((item7) => {
-      const time7 = item7.time.split("T")[0];
-      const dateKey7 = time7.substr(5, 5); // Estrai MM-DD dalla data
-      if (sums5[dateKey7]) {
-        const closePrice7 = parseFloat(item7.ask.c["$numberDecimal"]);
-        sums7[dateKey7].sum += closePrice7;
-        sums7[dateKey7].count++;
-        sums7[dateKey7].day = dateKey7;
-      }
-    });
+      // console.log(media3anni);
 
-    dataCandles?.media3?.forEach((item) => {
-      const time = item.time.split("T")[0];
-      const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
-      if (sums3[dateKey]) {
-        const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
-        sums3[dateKey].sum += closePrice;
-        sums3[dateKey].count++;
-        sums3[dateKey].day = dateKey;
-      }
-    });
+      // Creo un oggetto per tenere traccia delle somme temporanee per ogni giorno.
+      const sums = {};
+      const sums2 = {};
+      const sums3 = {};
+      const sums5 = {};
+      const sums7 = {};
+      const totSum = [];
+      const totSum2 = [];
+      const totSum3 = [];
+      const totSum5 = [];
+      const totSum7 = [];
+      const totDate = [];
 
-    dataCandles?.media2?.forEach((item) => {
-      const time = item.time.split("T")[0];
-      const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
-      if (sums2[dateKey]) {
-        const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
-        sums2[dateKey].sum += closePrice;
-        sums2[dateKey].count++;
-        sums2[dateKey].day = dateKey;
-      }
-    });
+      currentPrices.forEach((dateKey, i) => {
+        let currentDate = dataBegin;
+        currentDate.setDate(currentDate.getDate() + 1);
+        const year = currentDate.getFullYear();
 
-    dataCurrentCandles?.media?.forEach((item) => {
-      const time = item.time.split("T")[0];
-      const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
-      if (sums[dateKey]) {
-        const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
-        sums[dateKey].sum += closePrice;
-        sums[dateKey].count++;
-        sums[dateKey].day = dateKey;
-      }
-    });
+        sums[dateKey] = {
+          sum: 0,
+          count: 0,
+          day: dateKey,
+        };
+        totDate.push(i + 1);
+      });
 
-    for (const dateKey in sums) {
-      if (sums[dateKey].count > 0) {
-        sums[dateKey].average = parseFloat(
-          sums[dateKey].sum / sums[dateKey].count
-        );
-        sums[dateKey].average = parseFloat(sums[dateKey].average.toFixed(5));
-        totSum.push(sums[dateKey].average);
-      }
-    }
+      media2anni.forEach((dateKey, i) => {
+        let currentDate = dataBegin;
+        currentDate.setDate(currentDate.getDate() + 1);
+        const year = currentDate.getFullYear();
+        sums2[dateKey] = {
+          sum: 0,
+          count: 0,
+          day: dateKey,
+        };
+        totDate.push(i + 1);
+      });
 
-    for (const dateKey in sums2) {
-      if (sums2[dateKey].count > 0) {
-        sums2[dateKey].average = parseFloat(
-          sums2[dateKey].sum / sums2[dateKey].count
-        );
-        sums2[dateKey].average = parseFloat(sums2[dateKey].average.toFixed(5));
-        totSum2.push(sums2[dateKey].average);
-      }
-    }
+      media3anni.forEach((dateKey, i) => {
+        let currentDate = dataBegin;
+        currentDate.setDate(currentDate.getDate() + 1);
+        const year = currentDate.getFullYear();
+        sums3[dateKey] = {
+          sum: 0,
+          count: 0,
+          day: dateKey,
+        };
+        totDate.push(i + 1);
+      });
 
-    for (const dateKey in sums3) {
-      if (sums3[dateKey].count > 0) {
-        sums3[dateKey].average = parseFloat(
-          sums3[dateKey].sum / sums3[dateKey].count
-        );
-        sums3[dateKey].average = parseFloat(sums3[dateKey].average.toFixed(5));
-        totSum3.push(sums3[dateKey].average);
-      }
-    }
-    for (const dateKey5 in sums5) {
-      if (sums5[dateKey5].count > 0) {
-        sums5[dateKey5].average = parseFloat(
-          sums5[dateKey5].sum / sums5[dateKey5].count
-        );
-        sums5[dateKey5].average = parseFloat(
-          sums5[dateKey5].average.toFixed(5)
-        );
-        totSum5.push(sums5[dateKey5].average);
-      }
-    }
+      media5anni.forEach((dateKey, i) => {
+        let currentDate = dataBegin;
+        currentDate.setDate(currentDate.getDate() + 1);
+        const year = currentDate.getFullYear();
+        sums5[dateKey] = {
+          sum: 0,
+          count: 0,
+          day: dateKey,
+        };
+        totDate.push(i + 1);
+      });
 
-    for (const dateKey7 in sums7) {
-      if (sums7[dateKey7].count > 0) {
-        sums7[dateKey7].average = parseFloat(
-          sums7[dateKey7].sum / sums7[dateKey7].count
-        );
-        sums7[dateKey7].average = parseFloat(
-          sums7[dateKey7].average.toFixed(5)
-        );
-        totSum7.push(sums7[dateKey7].average);
+      media7anni.forEach((dateKey, i) => {
+        let currentDate = dataBegin;
+        currentDate.setDate(currentDate.getDate() + 1);
+        const year = currentDate.getFullYear();
+        sums7[dateKey] = {
+          sum: 0,
+          count: 0,
+          day: dateKey,
+        };
+        totDate.push(i + 1);
+      });
+
+      dataCandles?.media5?.forEach((item5) => {
+        const time5 = item5.time.split("T")[0];
+        const dateKey5 = time5.substr(5, 5); // Estrai MM-DD dalla data
+        if (sums5[dateKey5]) {
+          const closePrice5 = parseFloat(item5.ask.c["$numberDecimal"]);
+          sums5[dateKey5].sum += closePrice5;
+          sums5[dateKey5].count++;
+          sums5[dateKey5].day = dateKey5;
+        }
+      });
+
+      dataCandles?.media7?.forEach((item7) => {
+        const time7 = item7.time.split("T")[0];
+        const dateKey7 = time7.substr(5, 5); // Estrai MM-DD dalla data
+        if (sums5[dateKey7]) {
+          const closePrice7 = parseFloat(item7.ask.c["$numberDecimal"]);
+          sums7[dateKey7].sum += closePrice7;
+          sums7[dateKey7].count++;
+          sums7[dateKey7].day = dateKey7;
+        }
+      });
+
+      dataCandles?.media3?.forEach((item) => {
+        const time = item.time.split("T")[0];
+        const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
+        if (sums3[dateKey]) {
+          const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
+          sums3[dateKey].sum += closePrice;
+          sums3[dateKey].count++;
+          sums3[dateKey].day = dateKey;
+        }
+      });
+
+      dataCandles?.media2?.forEach((item) => {
+        const time = item.time.split("T")[0];
+        const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
+        if (sums2[dateKey]) {
+          const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
+          sums2[dateKey].sum += closePrice;
+          sums2[dateKey].count++;
+          sums2[dateKey].day = dateKey;
+        }
+      });
+
+      dataCurrentCandles?.media?.forEach((item) => {
+        const time = item.time.split("T")[0];
+        const dateKey = time.substr(5, 5); // Estrai MM-DD dalla data
+        if (sums[dateKey]) {
+          const closePrice = parseFloat(item.ask.c["$numberDecimal"]);
+          sums[dateKey].sum += closePrice;
+          sums[dateKey].count++;
+          sums[dateKey].day = dateKey;
+        }
+      });
+
+      for (const dateKey in sums) {
+        if (sums[dateKey].count > 0) {
+          sums[dateKey].average = parseFloat(
+            sums[dateKey].sum / sums[dateKey].count
+          );
+          sums[dateKey].average = parseFloat(sums[dateKey].average.toFixed(5));
+          totSum.push(sums[dateKey].average);
+        }
       }
-    }
-    //const xValues = sums3[dateKey].map((item) => item);
-    // console.log(xValues);
-    //const keysArray = Object.keys(sums3);
-    setX0(totDate);
-    setY0(totSum);
-    setX3(totDate);
-    setY3(totSum3);
-    setX2(totDate);
-    setY2(totSum2);
-    setX5(totDate);
-    setY5(totSum5);
-    setX7(totDate);
-    setY7(totSum7);
-  }, [dataCurrentCandles?.media]);
+
+      for (const dateKey in sums2) {
+        if (sums2[dateKey].count > 0) {
+          sums2[dateKey].average = parseFloat(
+            sums2[dateKey].sum / sums2[dateKey].count
+          );
+          sums2[dateKey].average = parseFloat(
+            sums2[dateKey].average.toFixed(5)
+          );
+          totSum2.push(sums2[dateKey].average);
+        }
+      }
+
+      for (const dateKey in sums3) {
+        if (sums3[dateKey].count > 0) {
+          sums3[dateKey].average = parseFloat(
+            sums3[dateKey].sum / sums3[dateKey].count
+          );
+          sums3[dateKey].average = parseFloat(
+            sums3[dateKey].average.toFixed(5)
+          );
+          totSum3.push(sums3[dateKey].average);
+        }
+      }
+      for (const dateKey5 in sums5) {
+        if (sums5[dateKey5].count > 0) {
+          sums5[dateKey5].average = parseFloat(
+            sums5[dateKey5].sum / sums5[dateKey5].count
+          );
+          sums5[dateKey5].average = parseFloat(
+            sums5[dateKey5].average.toFixed(5)
+          );
+          totSum5.push(sums5[dateKey5].average);
+        }
+      }
+
+      for (const dateKey7 in sums7) {
+        if (sums7[dateKey7].count > 0) {
+          sums7[dateKey7].average = parseFloat(
+            sums7[dateKey7].sum / sums7[dateKey7].count
+          );
+          sums7[dateKey7].average = parseFloat(
+            sums7[dateKey7].average.toFixed(5)
+          );
+          totSum7.push(sums7[dateKey7].average);
+        }
+      }
+      //const xValues = sums3[dateKey].map((item) => item);
+      // console.log(xValues);
+      //const keysArray = Object.keys(sums3);
+      setX0(totDate);
+      setY0(totSum);
+      setX3(totDate);
+      setY3(totSum3);
+      setX2(totDate);
+      setY2(totSum2);
+      setX5(totDate);
+      setY5(totSum5);
+      setX7(totDate);
+      setY7(totSum7);
+    },
+    [dataCurrentCandles?.media]
+  );
 
   useEffect(() => {
     // Chiama mediaTotal con le date appropriate
@@ -282,6 +289,47 @@ const Graph = (props) => {
     //   }
   }, [mediaTotal, dataCandles, fromDate, toDate, dataLoaded]);
 
+  // Funzione per aggiungere giorni a una data
+function aggiungiGiorni(data, giorni) {
+  const copiaData = new Date(data);
+  copiaData.setDate(copiaData.getDate() + giorni);
+  return copiaData;
+}
+
+// Creazione di un oggetto con chiave (data) e valore (prezzo)
+function creaPrezziPerData(prezzi, dataIniziale) {
+return prezzi.reduce((obj, prezzo, index) => {
+  const dataCorrente = aggiungiGiorni(dataIniziale, index);
+  const dataChiave = dataCorrente.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+  obj[dataChiave] = prezzo;
+  return obj;
+}, {});
+}
+
+const dataIniziale = new Date(fromDate); // Modifica questa data in base alle tue esigenze
+
+const prezziPerData0 = creaPrezziPerData(y0, dataIniziale);
+const dateArray0 = Object.keys(prezziPerData0);
+const prezziArray0 = Object.values(prezziPerData0);
+
+const prezziPerData2 = creaPrezziPerData(y2, dataIniziale);
+const dateArray2 = Object.keys(prezziPerData2);
+const prezziArray2 = Object.values(prezziPerData2);
+
+const prezziPerData3 = creaPrezziPerData(y3, dataIniziale);
+const dateArray3 = Object.keys(prezziPerData3);
+const prezziArray3 = Object.values(prezziPerData3);
+
+const prezziPerData5 = creaPrezziPerData(y5, dataIniziale);
+const dateArray5 = Object.keys(prezziPerData5);
+const prezziArray5 = Object.values(prezziPerData5);
+
+const prezziPerData7 = creaPrezziPerData(y7, dataIniziale);
+const dateArray7 = Object.keys(prezziPerData7);
+const prezziArray7 = Object.values(prezziPerData7);
+
+console.log(dateArray3,prezziPerData3);
+
   const chartLayout = {
     title: selectedNamePair,
     xaxis: {
@@ -294,24 +342,24 @@ const Graph = (props) => {
 
   const data = [
     {
-      x: x3,
-      y: y0,
+      x: dateArray0,
+      y: prezziArray0,
       type: "scatter",
       mode: "lines+markers",
       marker: { color: "red" },
       name: "current",
     },
     {
-      x: x2,
-      y: y2,
+      x: dateArray2,
+      y: prezziArray2,
       type: "scatter",
       mode: "lines+markers",
       marker: { color: "yellow" },
       name: "2 years",
     },
     {
-      x: x3,
-      y: y3,
+      x: dateArray3,
+      y: prezziArray3,
       type: "scatter",
       mode: "lines+markers",
       marker: { color: "blue" },
@@ -319,22 +367,24 @@ const Graph = (props) => {
     },
 
     {
-      x: x5,
-      y: y5,
+      x: dateArray5,
+      y: prezziArray5,
       type: "scatter",
       mode: "lines+markers",
       marker: { color: "orange" },
       name: "5 years",
     },
     {
-      x: x7,
-      y: y7,
+      x: dateArray7,
+      y: prezziArray7,
       type: "scatter",
       mode: "lines+markers",
       marker: { color: "violet" },
       name: "7 years",
     },
   ];
+
+  //console.log(x3,y3);
 
   return (
     <div>
