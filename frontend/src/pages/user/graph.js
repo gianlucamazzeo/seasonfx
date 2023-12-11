@@ -386,6 +386,19 @@ console.log(dateArray3,prezziPerData3);
 
   //console.log(x3,y3);
 
+  const collection = dateArray2.map(data => ({
+    data,
+    media2Anni: prezziPerData2[data] || null,
+    media3Anni: prezziPerData3[data] || null,
+    media5Anni: prezziPerData5[data] || null,
+    media7Anni: prezziPerData7[data] || null,
+    prezzoMedioCorrente: prezziPerData0[data] || null
+}));
+
+console.log(collection)
+
+
+
   return (
     <div>
       <LineChart layout={chartLayout} data={data} />

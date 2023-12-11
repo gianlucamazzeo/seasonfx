@@ -25,6 +25,11 @@ const AdminNav = () => (
           Update data currency
         </Link>
       </li>
+      <li className="nav-item">
+        <Link to="/user/plot" className="nav-link">
+          Plot
+        </Link>
+      </li>
     </ul>
   </nav>
 );

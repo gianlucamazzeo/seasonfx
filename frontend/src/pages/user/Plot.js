@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import UserNav from "../../components/nav/UserNav";
+import AdminNav from "../../components/nav/AdminNav";
 import { Button, message, Space, Select, DatePicker } from "antd";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -31,6 +32,9 @@ const Plot = ({ history, match }) => {
   const [january, setJanuary] = useState(0);
   const [december, setDecember] = useState(11);
   const [dataIndex, setDataIndex] = useState(null);
+
+
+
 
   const graph = useMemo(
     () => (
@@ -168,7 +172,7 @@ const Plot = ({ history, match }) => {
     <div className="container-fluid">
       <div className="row">
         <div className="col-md-2">
-          <UserNav />
+        {user.role === 'admin' ? <AdminNav /> : <UserNav />}
         </div>
         <div className="col">
           {loading ? (

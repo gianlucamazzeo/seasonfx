@@ -78,6 +78,7 @@ const App = () => {
         path="/admin/update"
         component={CurrencyData}
       />
+      <AdminRoute exact path="/user/plot" component={Plot} />
       </Switch>
     </>
   );
