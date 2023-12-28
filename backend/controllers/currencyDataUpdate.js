@@ -40,7 +40,6 @@ exports.create = async (req, res) => {
       price: "A",
     });
 
-    console.log(pair);
 
     const symbol = transformCurrencyPair(pair);
     //"EURUSD=X";
@@ -53,6 +52,7 @@ exports.create = async (req, res) => {
 
     // Funzione per trasformare i dati
     function transformData(originalData) {
+      
       return originalData.map((item) => ({
         complete: true,
         volume: item.volume,
@@ -78,7 +78,6 @@ exports.create = async (req, res) => {
  //   const c = JSON.parse(response);
 
     const createRange = (fromDate, toDate) => {
-      console.log(fromDate, toDate);
 
       // Ottieni la data odierna
       const dataOdierna = new Date();

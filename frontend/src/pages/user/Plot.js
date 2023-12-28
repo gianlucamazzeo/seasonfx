@@ -101,6 +101,7 @@ const Plot = ({ history, match }) => {
           });
         getLocalCurrentDataCurrency(ObjectDataPost, user.token)
           .then((res) => {
+            console.log(res.data)
             setDataCurrentCandles({ ...res.data });
 
             setLoadings((prevLoadings) => {
@@ -157,7 +158,6 @@ const Plot = ({ history, match }) => {
 
   const pairs = () => {
     const menu = [];
-     console.log(currencies);
     currencies.map((e, i) =>
       menu.push(
         <Option key={i} value={e._id}>

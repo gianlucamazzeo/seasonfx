@@ -31,7 +31,37 @@ const Graph = (props) => {
   const [y5, setY5] = useState([]);
   const [x7, setX7] = useState([]);
   const [y7, setY7] = useState([]);
+  const [high, setHigh] = useState([]);
+  const [low, setLow] = useState([]);
+  const [percentageChange, setPercentageChange] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false); // Aggiungi questa variabile di stato
+
+  function getWeekNumber(d) {
+    // Copia la data per non modificare l'originale
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    // Imposta al Giovedì della settimana corrente
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    // Ottieni il primo giorno dell'anno
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    // Calcola la differenza in settimane tra la data corrente e il primo giorno dell'anno
+    var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+    return weekNo;
+  }
+
+
+
+  // Funzione per determinare la tendenza e calcolare la percentuale di variazione
+const evaluateTrend = useCallback((currentDay, previousDay) => {
+  const percentageChangeHigh = calculatePercentageChange(currentDay.ask.h.$numberDecimal, previousDay.ask.h.$numberDecimal);
+  const percentageChangeLow = calculatePercentageChange(currentDay.ask.l.$numberDecimal, previousDay.ask.l.$numberDecimal);
+
+  return { 
+      trend: { 
+          high: percentageChangeHigh, 
+          low: percentageChangeLow 
+      } 
+  };
+}, []);
 
   const mediaTotal = useCallback(
     (fromDate, toDate, dataCandles) => {
@@ -196,6 +226,8 @@ const Graph = (props) => {
         }
       });
 
+      //////////////////////////////////////////////////////////////
+
       for (const dateKey in sums) {
         if (sums[dateKey].count > 0) {
           sums[dateKey].average = parseFloat(
@@ -252,6 +284,96 @@ const Graph = (props) => {
           totSum7.push(sums7[dateKey7].average);
         }
       }
+
+      
+      const data = dataCurrentCandles?.media;
+      const mappedData = data?.map((item) => {
+        const low = parseFloat(item.ask.l.$numberDecimal);
+        const high = parseFloat(item.ask.h.$numberDecimal);
+        const percentageChange = ((high - low) / high) * 100;
+
+        return {
+          week: getWeekNumber(new Date(item.time)),
+          day: {
+            dayOfWeek: new Date(item.time).getDay(),
+            low: low,
+            high: high,
+            percentageChange: percentageChange,
+          },
+        };
+      });
+
+      
+      //  console.log(mappedData);
+      // Poi, riduciamo i dati raggruppandoli per settimana
+      const reducedData = mappedData?.reduce((acc, item) => {
+        // Se la settimana non esiste ancora nell'accumulatore, la creiamo
+        if (!acc[item.week]) {
+          acc[item.week] = {
+            weekNumber: item.week,
+            days: [item.day],
+          };
+        } else {
+          // Altrimenti, aggiungiamo il giorno
+          acc[item.week].days.push(item.day);
+        }
+
+        return acc;
+      }, {});
+      // Infine, convertiamo l'oggetto ridotto in un array
+      if (reducedData) {
+        const result = Object.values(reducedData);
+
+        const percentageChanges = data.map((item) => {
+          const low = parseFloat(item.ask.l.$numberDecimal);
+          const high = parseFloat(item.ask.h.$numberDecimal);
+          const percentageChange = ((high - low) / high) * 100;
+
+          return {
+            time: item.time,
+            percentageChange: percentageChange,
+          };
+        });
+
+        // Aggiungi le percentuali di variazione a dataCurrentCandles?.media
+        const updatedDataCurrenCandles = dataCurrentCandles?.media?.map(
+          (item) => {
+            const matchingChange = percentageChanges.find(
+              (change) => change.time === item.time
+            );
+            return {
+              ...item,
+              percentageChange: matchingChange
+                ? matchingChange.percentageChange
+                : null,
+            };
+          }
+        );
+        const percentageChangesData = updatedDataCurrenCandles.map(
+          (item) => item.percentageChange
+        );
+        setPercentageChange(percentageChangesData);
+      }
+      const min = Math.min(...totSum);
+      const max = Math.max(...totSum);
+      // Calcola il logaritmo dei valori minimo e massimo
+      const logMin = Math.log10(min);
+      const logMax = Math.log10(max);
+
+      // Mappa percentageChange in proporzione alla scala logaritmica
+      const scaledPercentageChange = percentageChange.map((value) => {
+        // Calcola il logaritmo del valore
+        const logValue = Math.log10(value);
+
+        // Calcola il rapporto del logaritmo del valore rispetto al range dei logaritmi
+        const ratio = (logValue - logMin) / (logMax - logMin);
+
+        // Ritorna il valore scalato
+        return ratio * (max - min) + min;
+      });
+      
+     
+      ///////////////////////////////////////////////////////////////////
       //const xValues = sums3[dateKey].map((item) => item);
       // console.log(xValues);
       //const keysArray = Object.keys(sums3);
@@ -265,9 +387,13 @@ const Graph = (props) => {
       setY5(totSum5);
       setX7(totDate);
       setY7(totSum7);
+      setHigh(scaledPercentageChange)
+      
     },
     [dataCurrentCandles?.media]
   );
+
+
 
   useEffect(() => {
     // Chiama mediaTotal con le date appropriate
@@ -289,46 +415,79 @@ const Graph = (props) => {
     //   }
   }, [mediaTotal, dataCandles, fromDate, toDate, dataLoaded]);
 
+  function calculatePercentageChange(currentValue, previousValue) {
+    return ((currentValue - previousValue) / Math.abs(previousValue)) * 100;
+}
+
+
+
+/*
+setHigh(currentDataTrend?.map(item => item.trend.high));
+setLow(currentDataTrend?.map(item => item.trend.low));
+
+*/
+
   // Funzione per aggiungere giorni a una data
-function aggiungiGiorni(data, giorni) {
-  const copiaData = new Date(data);
-  copiaData.setDate(copiaData.getDate() + giorni);
-  return copiaData;
-}
+  function aggiungiGiorni(data, giorni) {
+    const copiaData = new Date(data);
+    copiaData.setDate(copiaData.getDate() + giorni);
+    return copiaData;
+  }
 
-// Creazione di un oggetto con chiave (data) e valore (prezzo)
-function creaPrezziPerData(prezzi, dataIniziale) {
-return prezzi.reduce((obj, prezzo, index) => {
-  const dataCorrente = aggiungiGiorni(dataIniziale, index);
-  const dataChiave = dataCorrente.toISOString().split('T')[0]; // Formato YYYY-MM-DD
-  obj[dataChiave] = prezzo;
-  return obj;
-}, {});
-}
+  // Creazione di un oggetto con chiave (data) e valore (prezzo)
+  function creaPrezziPerData(prezzi, dataIniziale) {
+    return prezzi.reduce((obj, prezzo, index) => {
+      const dataCorrente = aggiungiGiorni(dataIniziale, index);
+      const dataChiave = dataCorrente.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+      obj[dataChiave] = prezzo;
+      return obj;
+    }, {});
+  }
 
-const dataIniziale = new Date(fromDate); // Modifica questa data in base alle tue esigenze
+  function creaPrezziPerDataTrend(prezzi, dataIniziale) {
+    return prezzi.reduce((obj, prezzo, index) => {
+      const dataCorrente = aggiungiGiorni(dataIniziale, index);
+      const dataChiave = dataCorrente.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+      obj[dataChiave] = prezzo;
+      return obj;
+    }, {});
+  }
 
-const prezziPerData0 = creaPrezziPerData(y0, dataIniziale);
-const dateArray0 = Object.keys(prezziPerData0);
-const prezziArray0 = Object.values(prezziPerData0);
+  
 
-const prezziPerData2 = creaPrezziPerData(y2, dataIniziale);
-const dateArray2 = Object.keys(prezziPerData2);
-const prezziArray2 = Object.values(prezziPerData2);
+  const dataIniziale = new Date(fromDate); // Modifica questa data in base alle tue esigenze
 
-const prezziPerData3 = creaPrezziPerData(y3, dataIniziale);
-const dateArray3 = Object.keys(prezziPerData3);
-const prezziArray3 = Object.values(prezziPerData3);
+  const prezziPerData0 = creaPrezziPerData(y0, dataIniziale);
+  const dateArray0 = Object.keys(prezziPerData0);
+  const prezziArray0 = Object.values(prezziPerData0);
 
-const prezziPerData5 = creaPrezziPerData(y5, dataIniziale);
-const dateArray5 = Object.keys(prezziPerData5);
-const prezziArray5 = Object.values(prezziPerData5);
+  const prezziPerData2 = creaPrezziPerData(y2, dataIniziale);
+  const dateArray2 = Object.keys(prezziPerData2);
+  const prezziArray2 = Object.values(prezziPerData2);
 
-const prezziPerData7 = creaPrezziPerData(y7, dataIniziale);
-const dateArray7 = Object.keys(prezziPerData7);
-const prezziArray7 = Object.values(prezziPerData7);
+  const prezziPerData3 = creaPrezziPerData(y3, dataIniziale);
+  const dateArray3 = Object.keys(prezziPerData3);
+  const prezziArray3 = Object.values(prezziPerData3);
 
-console.log(dateArray3,prezziPerData3);
+  const prezziPerData5 = creaPrezziPerData(y5, dataIniziale);
+  const dateArray5 = Object.keys(prezziPerData5);
+  const prezziArray5 = Object.values(prezziPerData5);
+
+  const prezziPerData7 = creaPrezziPerData(y7, dataIniziale);
+  const dateArray7 = Object.keys(prezziPerData7);
+  const prezziArray7 = Object.values(prezziPerData7);
+
+  const prezziPerDataTrendLow = creaPrezziPerDataTrend(low, dataIniziale);
+  const dateArrayTrendLow = Object.keys(prezziPerDataTrendLow);
+  const prezziArrayLow = Object.values(prezziPerDataTrendLow);
+
+  const prezziPerDataTrendHigh = creaPrezziPerDataTrend(high, dataIniziale);
+  const dateArrayTrendHigh = Object.keys(prezziPerDataTrendHigh);
+  const prezziArrayHigh = Object.values(prezziPerDataTrendHigh);
+
+
+
+
 
   const chartLayout = {
     title: selectedNamePair,
@@ -349,6 +508,7 @@ console.log(dateArray3,prezziPerData3);
       marker: { color: "red" },
       name: "current",
     },
+
     {
       x: dateArray2,
       y: prezziArray2,
@@ -384,20 +544,40 @@ console.log(dateArray3,prezziPerData3);
     },
   ];
 
+  
+
+  const chartLayoutTrend = {
+    title: 'Trend: Buy or Sell',
+    xaxis: {
+      title: "Days",
+    },
+    yaxis: {
+      title: "Trend",
+    },
+  };
+
+
+  const dataTrend = [
+    {
+      x: dateArrayTrendHigh,
+      y: prezziArrayHigh,
+      type: "scatter",
+      mode: "lines+markers",
+      marker: { color: "blue" },
+      name: "current",
+    },
+  ];
+  
   //console.log(x3,y3);
 
-  const collection = dateArray2.map(data => ({
+  const collection = dateArray2.map((data) => ({
     data,
     media2Anni: prezziPerData2[data] || null,
     media3Anni: prezziPerData3[data] || null,
     media5Anni: prezziPerData5[data] || null,
     media7Anni: prezziPerData7[data] || null,
-    prezzoMedioCorrente: prezziPerData0[data] || null
-}));
-
-console.log(collection)
-
-
+    prezzoMedioCorrente: prezziPerData0[data] || null,
+  }));
 
   return (
     <div>

@@ -19,7 +19,7 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log("DB CONNECTED!"))
+  .then(() => console.log("DB CONNECTED!" + process.env.DATABASE))
   .catch((err) => console.log(`DB CONNECTION ERR ${err}`));
 
 // middlewares
