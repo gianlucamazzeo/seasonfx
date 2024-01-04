@@ -226,6 +226,7 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
         }
       });
 
+
       //////////////////////////////////////////////////////////////
 
       for (const dateKey in sums) {
@@ -238,6 +239,7 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
         }
       }
 
+     
       for (const dateKey in sums2) {
         if (sums2[dateKey].count > 0) {
           sums2[dateKey].average = parseFloat(
@@ -287,6 +289,8 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
 
       
       const data = dataCurrentCandles?.media;
+     
+      /*
       const mappedData = data?.map((item) => {
         const low = parseFloat(item.ask.l.$numberDecimal);
         const high = parseFloat(item.ask.h.$numberDecimal);
@@ -302,10 +306,11 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
           },
         };
       });
-
+      */
       
       //  console.log(mappedData);
       // Poi, riduciamo i dati raggruppandoli per settimana
+      /*
       const reducedData = mappedData?.reduce((acc, item) => {
         // Se la settimana non esiste ancora nell'accumulatore, la creiamo
         if (!acc[item.week]) {
@@ -354,13 +359,15 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
         );
         setPercentageChange(percentageChangesData);
       }
-      const min = Math.min(...totSum);
-      const max = Math.max(...totSum);
+      */
+   //   const min = Math.min(...totSum);
+   //   const max = Math.max(...totSum);
       // Calcola il logaritmo dei valori minimo e massimo
-      const logMin = Math.log10(min);
-      const logMax = Math.log10(max);
+   //   const logMin = Math.log10(min);
+   //   const logMax = Math.log10(max);
 
       // Mappa percentageChange in proporzione alla scala logaritmica
+      /*
       const scaledPercentageChange = percentageChange.map((value) => {
         // Calcola il logaritmo del valore
         const logValue = Math.log10(value);
@@ -371,7 +378,7 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
         // Ritorna il valore scalato
         return ratio * (max - min) + min;
       });
-      
+      */
      
       ///////////////////////////////////////////////////////////////////
       //const xValues = sums3[dateKey].map((item) => item);
@@ -387,7 +394,7 @@ const evaluateTrend = useCallback((currentDay, previousDay) => {
       setY5(totSum5);
       setX7(totDate);
       setY7(totSum7);
-      setHigh(scaledPercentageChange)
+   //   setHigh(scaledPercentageChange)
       
     },
     [dataCurrentCandles?.media]
