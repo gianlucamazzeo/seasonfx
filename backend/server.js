@@ -26,6 +26,13 @@ mongoose
 // middlewares
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "2mb" }));
+
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  next();
+});
+
 app.use(cors({
   origin: 'https://seasonfx.vercel.app/', // Sostituisci con l'URL del tuo frontend
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
@@ -33,10 +40,7 @@ app.use(cors({
   allowedHeaders: 'Content-Type,Authorization'
 }));
 
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  next();
-});
+
 
 // routes middleware
 readdirSync("./routes").map((r) => app.use("/api", require("./routes/" + r)));
