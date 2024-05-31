@@ -6,6 +6,7 @@ exports.getDataByOanda = async (params) => {
   const { endpoint, pair, fromData, toData, granularity, price, ...other } =
     params;
 
+    console.log("params", params)
   const myURL = new URL(
     `${apiOandaUrl}/${endpoint}/${pair}/candles?price=A&from=${fromData}&to=${toData}&granularity=${granularity}`
   );

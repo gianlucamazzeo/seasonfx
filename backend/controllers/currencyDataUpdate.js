@@ -1,8 +1,132 @@
 const Currency = require("../models/currency");
 const CurrencyDataSet = require("../models/currencyDataSet");
+const CurrencyDataSetH4 = require("../models/currencyDataSet4");
 const slugify = require("slugify");
 const { getDataByOanda } = require("../oanda");
 const { getHistoricalData } = require("../yahooFinance");
+
+exports.createH4 = async (req, res) => {
+  try {
+    const pair = req.body.name;
+    const fromData = req.body.fromData;
+    const toData = req.body.toData;
+    const granularity = req.body.granularity;
+
+    const currencyPair = await Currency.findOne({
+      name: pair,
+    });
+
+
+    if (!currencyPair) {
+      return res.status(400).json({ msg: `Non esiste la valuta ${pair}` });
+    }
+
+    const responseOanda = await getDataByOanda({
+      endpoint: "instruments",
+      pair: pair,
+      fromData: fromData,
+      toData: toData,
+      granularity: granularity,
+      price: "A",
+    });
+
+    const createRange = (fromDate, toDate) => {
+      // Ottieni la data odierna
+      const dataOdierna = new Date();
+      // Converti la data fornita nel formato "2023-10-20" in un oggetto Date
+      const dataFornita = new Date(toDate);
+      if (dataFornita < dataOdierna) {
+        const fromDateSplit = fromDate.split("-");
+        const toDateSplit = toDate.split("-");
+        let fromDateTimestamp = new Date(
+          fromDateSplit[0],
+          fromDateSplit[1] - 1,
+          fromDateSplit[2].substring(0, 2),
+          "00",
+          "00",
+          "00",
+          "00"
+        );
+        let toDateTimestamp = new Date(
+          toDateSplit[0],
+          toDateSplit[1] - 1,
+          toDateSplit[2].substring(0, 2),
+          "23",
+          "59",
+          "59",
+          "00"
+        );
+        let ustart = fromDateTimestamp.getTime();
+        let uend = toDateTimestamp.getTime();
+        let newDataCandles = [];
+        const dateDaCercare = [];
+        for (unix = ustart; unix <= uend; unix += 86400000) {
+          let thisDay = new Date(unix);
+          let d = thisDay.toISOString();
+
+          let dataEsiste = responseOanda.some((o) => {
+            let oDate = new Date(o.time); // Converti o.time in un oggetto Date
+            return oDate.toISOString().substring(0, 19) === d.substring(0, 19); // Confronta fino ai secondi
+          });
+
+          let oggettoPiuVicino = null;
+          let differenzaMinima = Infinity;
+
+          if (!dataEsiste) {
+            responseOanda.forEach((oggetto) => {
+              const oggettoDate = new Date(oggetto.time);
+              const targetDateFormatZulu = new Date(
+                targetDate + "T00:00:00.000Z"
+              );
+              const differenza = Math.abs(targetDateFormatZulu - oggettoDate);
+
+              if (differenza < differenzaMinima) {
+                oggettoPiuVicino = { ...oggetto };
+                oggettoPiuVicino.time = targetDateFormatZulu.toISOString(); // Imposta la proprietà "time"
+                differenzaMinima = differenza;
+              }
+            });
+            if (oggettoPiuVicino) {
+              dateDaCercare.push(oggettoPiuVicino);
+            }
+          }
+          let dataCandles = responseOanda.filter((o) => {
+            let oDate = new Date(o.time);
+            let dDate = new Date(d);
+            return (
+              oDate.toISOString().substring(0, 19) ===
+              dDate.toISOString().substring(0, 19)
+            ); // Confronto fino ai secondi
+          });
+          if (dataCandles.length > 0) {
+            newDataCandles.push(dataCandles[0]);
+          }
+        }
+
+        const arrayCombinato = newDataCandles.concat(dateDaCercare);
+
+        // Ordina l'array combinato in base alla data "time"
+        arrayCombinato.sort((a, b) => {
+          const timeA = new Date(a.time);
+          const timeB = new Date(b.time);
+
+          return timeA - timeB;
+        });
+
+        // Ora l'array combinato è ordinato per data ascendente
+
+        return arrayCombinato;
+      }
+      return [];
+    };
+
+    const periodCandles = createRange(fromData, toData);
+    console.log(periodCandles);
+  } catch (err) {
+    console.log(err);
+    res.status(400).send("Create product failed" + err);
+  }
+};
 
 exports.create = async (req, res) => {
   function transformCurrencyPair(input) {
@@ -31,16 +155,6 @@ exports.create = async (req, res) => {
       return res.status(400).json({ msg: `Non esiste la valuta ${pair}` });
     }
 
-    const response = await getDataByOanda({
-      endpoint: "instruments",
-      pair: pair,
-      fromData: fromData,
-      toData: toData,
-      granularity: granularity,
-      price: "A",
-    });
-
-
     const symbol = transformCurrencyPair(pair);
     //"EURUSD=X";
     const queryOptions = {
@@ -52,7 +166,6 @@ exports.create = async (req, res) => {
 
     // Funzione per trasformare i dati
     function transformData(originalData) {
-      
       return originalData.map((item) => ({
         complete: true,
         volume: item.volume,
@@ -75,104 +188,106 @@ exports.create = async (req, res) => {
         console.error("Errore nella richiesta:", error);
       });
 
- //   const c = JSON.parse(response);
+    //   const c = JSON.parse(response);
 
     const createRange = (fromDate, toDate) => {
-
       // Ottieni la data odierna
       const dataOdierna = new Date();
       // Converti la data fornita nel formato "2023-10-20" in un oggetto Date
       const dataFornita = new Date(toDate);
       if (dataFornita < dataOdierna) {
-          const fromDateSplit = fromDate.split("-");
-          const toDateSplit = toDate.split("-");
+        const fromDateSplit = fromDate.split("-");
+        const toDateSplit = toDate.split("-");
 
-          let fromDateTimestamp = new Date(
-            fromDateSplit[0],
-            fromDateSplit[1] - 1,
-            fromDateSplit[2].substring(0, 2),
-            "00",
-            "00",
-            "00",
-            "00"
+        let fromDateTimestamp = new Date(
+          fromDateSplit[0],
+          fromDateSplit[1] - 1,
+          fromDateSplit[2].substring(0, 2),
+          "00",
+          "00",
+          "00",
+          "00"
+        );
+        let toDateTimestamp = new Date(
+          toDateSplit[0],
+          toDateSplit[1] - 1,
+          toDateSplit[2].substring(0, 2),
+          "00",
+          "00",
+          "00",
+          "00"
+        );
+
+        let ustart = fromDateTimestamp.getTime();
+        let uend = toDateTimestamp.getTime();
+        let newDataCandles = [];
+        const dateDaCercare = [];
+        for (unix = ustart; unix <= uend; unix += 86400000) {
+          let thisDay = new Date(unix);
+          let d = thisDay.toISOString();
+          let targetDate = d.toString().substring(0, 10);
+
+          //    console.log(d, thisDay.getDay());
+          let dataEsiste = responseYahoo.some(
+            (o) => o.time.substring(0, 10) === d.substring(0, 10)
           );
-          let toDateTimestamp = new Date(
-            toDateSplit[0],
-            toDateSplit[1] - 1,
-            toDateSplit[2].substring(0, 2),
-            "00",
-            "00",
-            "00",
-            "00"
-          );
 
-          let ustart = fromDateTimestamp.getTime();
-          let uend = toDateTimestamp.getTime();
-          let newDataCandles = [];
-          const dateDaCercare = [];
-          for (unix = ustart; unix <= uend; unix += 86400000) {
-            let thisDay = new Date(unix);
-            let d = thisDay.toISOString();
-            let targetDate = d.toString().substring(0, 10);
+          let oggettoPiuVicino = null;
+          let differenzaMinima = Infinity;
 
-            //    console.log(d, thisDay.getDay());
-            let dataEsiste = responseYahoo.some(
-              (o) => o.time.substring(0, 10) === d.substring(0, 10)
-            );
+          if (!dataEsiste) {
+            responseYahoo.forEach((oggetto) => {
+              const oggettoDate = new Date(oggetto.time);
+              const targetDateFormatZulu = new Date(
+                targetDate + "T00:00:00.000Z"
+              );
+              const differenza = Math.abs(targetDateFormatZulu - oggettoDate);
 
-            let oggettoPiuVicino = null;
-            let differenzaMinima = Infinity;
-
-            if (!dataEsiste) {
-              responseYahoo.forEach((oggetto) => {
-                const oggettoDate = new Date(oggetto.time);
-                const targetDateFormatZulu = new Date(
-                  targetDate + "T00:00:00.000Z"
-                );
-                const differenza = Math.abs(targetDateFormatZulu - oggettoDate);
-
-                if (oggettoDate < targetDateFormatZulu) {
-                  const nuovoOggettoPiuVicino = { ...oggettoPiuVicino, ...oggetto };
-                  // Imposta la proprietà "time" su "targetDateFormatZulu" utilizzando toISOString()
-                  nuovoOggettoPiuVicino.time = targetDateFormatZulu.toISOString();
-                  oggettoPiuVicino = nuovoOggettoPiuVicino;
-                  differenzaMinima = differenza;
-                }
-              });
-
-              // Controlla se è stato trovato un oggetto più vicino prima di aggiungerlo all'array dateDaCercare
-              if (oggettoPiuVicino) {
-                dateDaCercare.push(oggettoPiuVicino);
+              if (oggettoDate < targetDateFormatZulu) {
+                const nuovoOggettoPiuVicino = {
+                  ...oggettoPiuVicino,
+                  ...oggetto,
+                };
+                // Imposta la proprietà "time" su "targetDateFormatZulu" utilizzando toISOString()
+                nuovoOggettoPiuVicino.time = targetDateFormatZulu.toISOString();
+                oggettoPiuVicino = nuovoOggettoPiuVicino;
+                differenzaMinima = differenza;
               }
-            }
+            });
 
-            let dataCandles = responseYahoo.filter(
-              (o) => o.time.substring(0, 10) === d.substring(0, 10)
-            );
-
-            if (dataCandles.length > 0) {
-              newDataCandles.push(dataCandles[0]);
+            // Controlla se è stato trovato un oggetto più vicino prima di aggiungerlo all'array dateDaCercare
+            if (oggettoPiuVicino) {
+              dateDaCercare.push(oggettoPiuVicino);
             }
           }
 
-          //  console.log(newDataCandles, dateDaCercare);
+          let dataCandles = responseYahoo.filter(
+            (o) => o.time.substring(0, 10) === d.substring(0, 10)
+          );
 
-          // Unisci le due array
-          const arrayCombinato = newDataCandles.concat(dateDaCercare);
-
-          // Ordina l'array combinato in base alla data "time"
-          arrayCombinato.sort((a, b) => {
-            const timeA = new Date(a.time);
-            const timeB = new Date(b.time);
-
-            return timeA - timeB;
-          });
-
-          // Ora l'array combinato è ordinato per data ascendente
-
-          return arrayCombinato;
+          if (dataCandles.length > 0) {
+            newDataCandles.push(dataCandles[0]);
+          }
         }
-        return [];
+
+        //  console.log(newDataCandles, dateDaCercare);
+
+        // Unisci le due array
+        const arrayCombinato = newDataCandles.concat(dateDaCercare);
+
+        // Ordina l'array combinato in base alla data "time"
+        arrayCombinato.sort((a, b) => {
+          const timeA = new Date(a.time);
+          const timeB = new Date(b.time);
+
+          return timeA - timeB;
+        });
+
+        // Ora l'array combinato è ordinato per data ascendente
+
+        return arrayCombinato;
+      }
+      return [];
     };
 
     const periodCandles = createRange(fromData, toData);
@@ -205,25 +320,24 @@ exports.create = async (req, res) => {
       res.status(200).send(JSON.stringify(eleCur));
     } else {
       if (periodCandles.length > 0) {
-        const bulkOps = periodCandles.map(e => ({
+        const bulkOps = periodCandles.map((e) => ({
           updateOne: {
             filter: { _id: currencyPair._id, "candles.time": { $ne: e.time } },
-            update: { $push: { candles: e } }
-          }
+            update: { $push: { candles: e } },
+          },
         }));
-      
+
         CurrencyDataSet.bulkWrite(bulkOps)
-          .then(result => {
+          .then((result) => {
             res.send(periodCandles);
           })
-          .catch(err => {
+          .catch((err) => {
             console.error("Errore durante l'aggiornamento:", err);
             res.status(500).send(err);
           });
-        
       }
 
-     // res.send(periodCandles);
+      // res.send(periodCandles);
     }
   } catch (err) {
     console.log(err);

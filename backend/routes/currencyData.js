@@ -5,10 +5,11 @@ const router = express.Router();
 const { authCheck, adminCheck } = require("../middlewares/auth");
 
 // controller
-const { create, all, getMostRecentDate } = require("../controllers/currencyDataUpdate");
+const { create, all, getMostRecentDate, createH4 } = require("../controllers/currencyDataUpdate");
 
 // routes
 router.post("/currencyData", authCheck, adminCheck, create);
+router.post("/currencyDataH4", authCheck, adminCheck, createH4);
 
 router.get("/currencyDataPair", authCheck, all);
 

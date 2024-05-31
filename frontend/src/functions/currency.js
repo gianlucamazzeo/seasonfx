@@ -62,6 +62,14 @@ export const updateCurrency = async (slug, currency, authtoken) =>
 
   });
 
+  export const updateDataCurrencyH4 = async (pairPeriod, authtoken) =>
+  await axios.post(`${process.env.REACT_APP_API}/currencyDataH4`, pairPeriod, {
+    headers: {
+      authtoken,
+    },
+
+  });
+
 
 
 export const createCurrency = async (currency, authtoken) =>

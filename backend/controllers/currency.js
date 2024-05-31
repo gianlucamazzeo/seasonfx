@@ -132,7 +132,6 @@ exports.readCurrentLocal = async (req, res) => {
 
     const Year = new Date().getFullYear(); // Anno 
 
-    console.log(list[0].candles)
     const mediaPeriod = list[0].candles.filter((candle) => {
       const candleYear = new Date(candle.time).getFullYear();
       return candleYear >= Year && candleYear <= Year;
