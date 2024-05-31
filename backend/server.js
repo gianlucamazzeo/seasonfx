@@ -13,6 +13,7 @@ const authRoutes = require("./routes/auth");
 // app
 const app = express();
 
+
 // db
 mongoose
   .connect(process.env.DATABASE, {
@@ -25,7 +26,12 @@ mongoose
 // middlewares
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "2mb" }));
-app.use(cors());
+app.use(cors({
+  origin: 'https://seasonfx.vercel.app/', // Sostituisci con l'URL del tuo frontend
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  allowedHeaders: 'Content-Type,Authorization'
+}));
 
 // routes middleware
 readdirSync("./routes").map((r) => app.use("/api", require("./routes/" + r)));
