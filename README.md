@@ -87,6 +87,6 @@ Questo progetto è distribuito sotto licenza MIT. Vedi il file [LICENSE](LICENSE
 
 ## Contatti
 
-Per ulteriori informazioni, puoi contattarmi tramite [email](mailto:tuoindirizzoemail@example.com).
+Per ulteriori informazioni, puoi contattarmi tramite [email](mailto:gianlucamazzeo@gmail.com).
 
 
