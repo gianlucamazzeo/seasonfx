@@ -2,7 +2,7 @@
 
 SeasonFX è un'applicazione che predice i movimenti futuri dei prezzi delle principali valute nel mercato forex basandosi sulla stagionalità e su medie matematiche.
 
-![Schermata dell'applicazione](frontend/public/images/schermata_app.png)
+![Schermata dell'applicazione](frontend/public/schermata_app.png)
 
 ## Descrizione del Progetto
 
