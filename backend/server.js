@@ -33,6 +33,11 @@ app.use(cors({
   allowedHeaders: 'Content-Type,Authorization'
 }));
 
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  next();
+});
+
 // routes middleware
 readdirSync("./routes").map((r) => app.use("/api", require("./routes/" + r)));
 
