@@ -13,6 +13,35 @@ const authRoutes = require("./routes/auth");
 // app
 const app = express();
 
+// IP statici di Render per le richieste in uscita (sostituisci con gli IP effettivi forniti da Render)
+const allowedOrigins = [
+  'https://seasonfx.vercel.app/', 
+  '3.75.158.163',
+  '3.125.183.140',
+  '35.157.117.28'     // Aggiungi altri domini se necessario
+];
+
+// Configura CORS per accettare richieste solo da origini specifiche
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// Middleware per impostare gli header COOP e CORP
+app.use((req, res, next) => {
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
+  next();
+});
+
 
 // db
 mongoose
@@ -27,14 +56,7 @@ mongoose
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "2mb" }));
 
-app.use(cors());
 
-// Middleware per impostare gli header COOP e CORP
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  next();
-});
 
 
 
