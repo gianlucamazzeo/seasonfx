@@ -35,12 +35,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Middleware per impostare gli header COOP e CORP
-app.use((req, res, next) => {
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
-  res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
-  next();
-});
 
 
 // db
