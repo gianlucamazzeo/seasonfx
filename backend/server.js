@@ -27,18 +27,14 @@ mongoose
 app.use(morgan("dev"));
 app.use(bodyParser.json({ limit: "2mb" }));
 
+app.use(cors());
+
+// Middleware per impostare gli header COOP e CORP
 app.use((req, res, next) => {
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
   res.setHeader('Cross-Origin-Resource-Policy', 'same-origin');
   next();
 });
-
-app.use(cors({
-  origin: 'https://seasonfx.vercel.app/', // Sostituisci con l'URL del tuo frontend
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-  allowedHeaders: 'Content-Type,Authorization'
-}));
 
 
 
