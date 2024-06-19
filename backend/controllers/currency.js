@@ -55,7 +55,7 @@ exports.readLocal = async (req, res) => {
       const lastYear = new Date().getFullYear() - 1; // Anno scorso
 
       const twoYearsAgo = lastYear - 1; // due anni fa
-      const media2Period = list[0].candles.filter((candle) => {
+      const media2Period = list[0]?.candles.filter((candle) => {
         const candleYear = new Date(candle.time).getFullYear();
         return candleYear >= twoYearsAgo && candleYear <= lastYear;
       });
@@ -132,13 +132,13 @@ exports.readCurrentLocal = async (req, res) => {
 
     const Year = new Date().getFullYear(); // Anno 
 
-    const mediaPeriod = list[0].candles.filter((candle) => {
+    const mediaPeriod = list[0]?.candles.filter((candle) => {
       const candleYear = new Date(candle.time).getFullYear();
       return candleYear >= Year && candleYear <= Year;
     });
 
     let r = {
-      media: list[0].candles
+      media: list[0]?.candles
     };
     res.json(r);
   })
